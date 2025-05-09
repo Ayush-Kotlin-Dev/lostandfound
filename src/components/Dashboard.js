@@ -1,53 +1,116 @@
-import React from 'react';
+import React, {useState} from 'react';
+import {
+    Container,
+    Typography,
+    Box,
+    Tabs,
+    Tab,
+    Paper,
+    Button,
+    Fade
+} from '@mui/material';
 import {useAuth} from '../context/AuthContext';
+import {useItems} from '../context/ItemsContext';
+import TopAppBar from './layout/TopAppBar';
+import ItemsGrid from './items/ItemsGrid';
+import CategoryFilter from './items/CategoryFilter';
+import {Add as AddIcon} from '@mui/icons-material';
+import {useNavigate} from 'react-router-dom';
 
 export default function Dashboard() {
-    const {currentUser, userData, logout} = useAuth();
+    const [tabValue, setTabValue] = useState(0); // 0 for Lost, 1 for Found
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const {currentUser} = useAuth();
+    const {lostItems, foundItems, loading, error} = useItems();
+    const navigate = useNavigate();
 
-    const handleLogout = async () => {
-        try {
-            await logout();
-        } catch (error) {
-            console.error("Failed to log out", error);
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+        setSelectedCategory('all'); // Reset category filter when changing tabs
+    };
+
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(category);
+    };
+
+    // Filter items by category
+    const getFilteredItems = () => {
+        const items = tabValue === 0 ? lostItems : foundItems;
+
+        if (selectedCategory === 'all') {
+            return items;
         }
+
+        return items.filter(item => item.category === selectedCategory);
     };
 
     return (
-        <div className="dashboard-container">
-            <div className="dashboard-header">
-                <h1>Lost and Found Dashboard</h1>
-                <button onClick={handleLogout} className="logout-button">Logout</button>
-            </div>
+        <div>
+            <TopAppBar/>
+            <Container maxWidth="lg" sx={{mt: 4, mb: 8}}>
+                {/* Welcome Section */}
+                <Paper sx={{p: 3, mb: 4, borderRadius: 2}}>
+                    <Box
+                        sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
+                        <Box>
+                            <Typography variant="h4" gutterBottom>
+                                Welcome, {currentUser?.displayName || 'User'}!
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary">
+                                Browse lost and found items or report a new item.
+                            </Typography>
+                        </Box>
+                        <Button
+                            variant="contained"
+                            startIcon={<AddIcon/>}
+                            onClick={() => navigate('/report-item')}
+                            sx={{mt: {xs: 2, sm: 0}}}
+                        >
+                            Report Item
+                        </Button>
+                    </Box>
+                </Paper>
 
-            <div className="user-welcome">
-                <h2>Welcome, {currentUser?.displayName || 'User'}!</h2>
-                <p>You are now logged in to the Lost and Found application.</p>
-            </div>
+          {/* Tabs for Lost and Found */}
+          <Box sx={{borderBottom: 1, borderColor: 'divider', mb: 3}}>
+              <Tabs
+                  value={tabValue}
+                  onChange={handleTabChange}
+                  aria-label="lost and found tabs"
+                  textColor="primary"
+                  indicatorColor="primary"
+              >
+                  <Tab label="Lost Items" id="lost-tab"/>
+                  <Tab label="Found Items" id="found-tab"/>
+              </Tabs>
+          </Box>
 
-            {userData && (
-                <div className="user-data">
-                    <h3>Your Profile</h3>
-                    <div className="profile-info">
-                        <p><strong>Name:</strong> {userData.displayName}</p>
-                        <p><strong>Email:</strong> {userData.email}</p>
-                        <p><strong>Account Created:</strong> {userData.createdAt?.toDate().toLocaleDateString()}</p>
-                    </div>
-                </div>
-            )}
+          {/* Category Filter */}
+          <CategoryFilter
+              selectedCategory={selectedCategory}
+              onCategoryChange={handleCategoryChange}
+          />
 
-            <div className="dashboard-content">
-                <div className="dashboard-section">
-                    <h3>Lost Items</h3>
-                    <p>You haven't reported any lost items yet.</p>
-                    <button className="action-button">Report a Lost Item</button>
-                </div>
-
-                <div className="dashboard-section">
-                    <h3>Found Items</h3>
-                    <p>You haven't reported any found items yet.</p>
-                    <button className="action-button">Report a Found Item</button>
-                </div>
-            </div>
-        </div>
-    );
+          {/* Tab Panels */}
+          <Fade in={tabValue === 0} timeout={500} unmountOnExit>
+              <div hidden={tabValue !== 0}>
+                  <ItemsGrid
+                      items={getFilteredItems()}
+                      loading={loading}
+                      error={error}
+                  />
+              </div>
+          </Fade>
+          <Fade in={tabValue === 1} timeout={500} unmountOnExit>
+              <div hidden={tabValue !== 1}>
+                  <ItemsGrid
+                      items={getFilteredItems()}
+                      loading={loading}
+                      error={error}
+                  />
+              </div>
+          </Fade>
+      </Container>
+    </div>
+  );
 }

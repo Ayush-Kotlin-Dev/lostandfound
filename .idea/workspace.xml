@@ -4,10 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add login component and authentication styles for user login functionality">
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add dashboard component and styles for user interface">
+      <change afterPath="$PROJECT_DIR$/src/components/items/CategoryFilter.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/items/ItemCard.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/items/ItemsGrid.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/items/ReportItemForm.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/layout/TopAppBar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/context/ItemsContext.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/context/AuthContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/AuthContext.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Dashboard.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +76,7 @@
       <option name="presentableId" value="Default" />
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
-      <workItem from="1746817300524" duration="1655000" />
+      <workItem from="1746817300524" duration="2613000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -86,7 +94,23 @@
       <option name="project" value="LOCAL" />
       <updated>1746818796203</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="implement user data fetching and storage in auth context for enhanced profile management">
+      <option name="closed" value="true" />
+      <created>1746819197197</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1746819197197</updated>
+    </task>
+    <task id="LOCAL-00004" summary="add dashboard component and styles for user interface">
+      <option name="closed" value="true" />
+      <created>1746819291603</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1746819291603</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -118,6 +142,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add firebase authentication context, protected route, and registration component for user auth management" />
     <MESSAGE value="add login component and authentication styles for user login functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="add login component and authentication styles for user login functionality" />
+    <MESSAGE value="implement user data fetching and storage in auth context for enhanced profile management" />
+    <MESSAGE value="add dashboard component and styles for user interface" />
+    <option name="LAST_COMMIT_MESSAGE" value="add dashboard component and styles for user interface" />
   </component>
 </project>
