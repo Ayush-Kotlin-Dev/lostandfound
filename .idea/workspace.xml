@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly">
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add item details screen and update app routing for item view functionality">
+      <change beforePath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/context/AuthContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/AuthContext.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +67,7 @@
       <option name="presentableId" value="Default" />
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
-      <workItem from="1746817300524" duration="3552000" />
+      <workItem from="1746817300524" duration="3866000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -116,7 +117,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746820743931</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="add item details screen and update app routing for item view functionality">
+      <option name="closed" value="true" />
+      <created>1746821015050</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1746821015050</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -152,6 +161,7 @@
     <MESSAGE value="add dashboard component and styles for user interface" />
     <MESSAGE value="add dashboard layout, category filter, item grid, report item form, and top app bar components with styles for enhanced user interface and profile management" />
     <MESSAGE value="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly" />
+    <MESSAGE value="add item details screen and update app routing for item view functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="add item details screen and update app routing for item view functionality" />
   </component>
 </project>

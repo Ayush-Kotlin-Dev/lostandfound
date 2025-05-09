@@ -14,7 +14,9 @@ import {
     Snackbar,
     Card,
     CardContent,
-    IconButton
+    IconButton,
+    LinearProgress,
+    Tooltip
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -22,7 +24,10 @@ import {
     Cancel as CancelIcon,
     Phone as PhoneIcon,
     Email as EmailIcon,
-    VerifiedUser as VerifiedUserIcon
+    VerifiedUser as VerifiedUserIcon,
+    EmojiEvents as TrophyIcon,
+    Star as StarIcon,
+    Update as UpdateIcon
 } from '@mui/icons-material';
 import {useAuth} from '../../context/AuthContext';
 import {useItems} from '../../context/ItemsContext';
@@ -32,7 +37,7 @@ import {updateProfile} from 'firebase/auth';
 import TopAppBar from '../layout/TopAppBar';
 
 export default function ProfileScreen() {
-    const {currentUser, userData} = useAuth();
+    const {currentUser, userData, getUserReputationLevel} = useAuth();
     const {myItems} = useItems();
 
     const [editing, setEditing] = useState(false);
@@ -56,6 +61,29 @@ export default function ProfileScreen() {
     // Stats for the user
     const lostItemsCount = myItems ? myItems.filter(item => item.status === 'lost').length : 0;
     const foundItemsCount = myItems ? myItems.filter(item => item.status === 'found').length : 0;
+
+    // User contributions
+    const contributions = userData?.contributions || {
+        itemsFound: 0,
+        itemsReturned: 0,
+        totalPoints: 0
+    };
+
+    // Get user reputation level
+    const reputation = getUserReputationLevel(contributions.totalPoints);
+
+    // Calculate progress to next level
+    const getProgressToNextLevel = () => {
+        const points = contributions.totalPoints || 0;
+
+        if (points < 50) return {current: points, next: 50, progress: (points / 50) * 100};
+        if (points < 100) return {current: points - 50, next: 50, progress: ((points - 50) / 50) * 100};
+        if (points < 200) return {current: points - 100, next: 100, progress: ((points - 100) / 100) * 100};
+        if (points < 400) return {current: points - 200, next: 200, progress: ((points - 200) / 200) * 100};
+        return {current: points, next: 0, progress: 100}; // Max level
+    };
+
+    const progressData = getProgressToNextLevel();
 
     const handleSave = async () => {
         try {
@@ -156,6 +184,19 @@ export default function ProfileScreen() {
                                             <VerifiedUserIcon sx={{fontSize: 16, color: 'success.main', ml: 1}}/>
                                         )}
                                     </Box>
+
+                                    {/* Reputation Level */}
+                                    <Box sx={{display: 'flex', alignItems: 'center', mt: 1}}>
+                                        <Tooltip title="Your contribution reputation level">
+                                            <TrophyIcon sx={{fontSize: 20, color: reputation.color, mr: 1}}/>
+                                        </Tooltip>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{fontWeight: 'bold', color: reputation.color}}
+                                        >
+                                            {reputation.level}
+                                        </Typography>
+                                    </Box>
                                 </Box>
                             </Box>
 
@@ -248,7 +289,7 @@ export default function ProfileScreen() {
 
                     {/* Activity Stats */}
                     <Grid item xs={12} md={4}>
-                        <Paper elevation={3} sx={{p: 4, borderRadius: 2}}>
+                        <Paper elevation={3} sx={{p: 4, borderRadius: 2, mb: 4}}>
                             <Typography variant="h5" gutterBottom>
                                 Your Activity
                             </Typography>
@@ -291,6 +332,95 @@ export default function ProfileScreen() {
                                     </Card>
                                 </Grid>
                             </Grid>
+                        </Paper>
+
+                        {/* Contribution Stats */}
+                        <Paper elevation={3} sx={{p: 4, borderRadius: 2}}>
+                            <Typography variant="h5" gutterBottom>
+                                Contribution Stats
+                            </Typography>
+                            <Divider sx={{my: 2}}/>
+
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
+                                        <StarIcon sx={{color: 'gold', mr: 1}}/>
+                                        <Typography variant="h6">
+                                            {contributions.totalPoints} Points
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+
+                                <Grid item xs={6}>
+                                    <Card>
+                                        <CardContent>
+                                            <Typography variant="h4" sx={{textAlign: 'center'}}>
+                                                {contributions.itemsFound}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary"
+                                                        sx={{textAlign: 'center'}}>
+                                                Items Found
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Card>
+                                        <CardContent>
+                                            <Typography variant="h4" sx={{textAlign: 'center'}}>
+                                                {contributions.itemsReturned}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary"
+                                                        sx={{textAlign: 'center'}}>
+                                                Items Returned
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            </Grid>
+
+                            {/* Progress to Next Level */}
+                            {progressData.next > 0 && (
+                                <Box sx={{mt: 3}}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Progress to next level
+                                    </Typography>
+                                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                        <Box sx={{width: '100%', mr: 1}}>
+                                            <LinearProgress
+                                                variant="determinate"
+                                                value={progressData.progress}
+                                                sx={{
+                                                    height: 8,
+                                                    borderRadius: 4,
+                                                    backgroundColor: 'rgba(0,0,0,0.1)',
+                                                    '& .MuiLinearProgress-bar': {
+                                                        backgroundColor: reputation.color
+                                                    }
+                                                }}
+                                            />
+                                        </Box>
+                                        <Box sx={{minWidth: 35}}>
+                                            <Typography variant="body2"
+                                                        color="text.secondary">{`${Math.round(progressData.progress)}%`}</Typography>
+                                        </Box>
+                                    </Box>
+                                    <Typography variant="body2" color="text.secondary" sx={{mt: 0.5}}>
+                                        {`${progressData.current} / ${progressData.next} points needed`}
+                                    </Typography>
+                                </Box>
+                            )}
+
+                            {/* Last Contribution */}
+                            {contributions.lastContributionDate && (
+                                <Box sx={{display: 'flex', alignItems: 'center', mt: 2}}>
+                                    <UpdateIcon fontSize="small" sx={{color: 'text.secondary', mr: 1}}/>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Last
+                                        contribution: {new Date(contributions.lastContributionDate.toDate()).toLocaleDateString()}
+                                    </Typography>
+                                </Box>
+                            )}
                         </Paper>
                     </Grid>
                 </Grid>

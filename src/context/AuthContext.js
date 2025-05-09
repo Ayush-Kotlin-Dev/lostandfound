@@ -12,7 +12,7 @@ import {
     browserLocalPersistence
 } from 'firebase/auth';
 import {auth, db} from '../firebase/config';
-import {doc, setDoc, getDoc, serverTimestamp} from 'firebase/firestore';
+import {doc, setDoc, getDoc, updateDoc, serverTimestamp, increment} from 'firebase/firestore';
 
 // Create the auth context first
 const AuthContext = createContext();
@@ -63,6 +63,13 @@ export const AuthProvider = ({children}) => {
                     email,
                     photoURL,
                     createdAt: serverTimestamp(),
+                    // Initialize contribution stats
+                    contributions: {
+                        itemsFound: 0,
+                        itemsReturned: 0,
+                        totalPoints: 0,
+                        lastContributionDate: null
+                    },
                     ...additionalData
                 });
             }
@@ -98,6 +105,65 @@ export const AuthProvider = ({children}) => {
         } catch (err) {
             console.error("Error fetching user data:", err);
         }
+    };
+
+    // Update user contributions
+    const updateUserContributions = async (userId, contributionType) => {
+        if (!userId) return;
+
+        try {
+            const userRef = doc(db, 'users', userId);
+
+            // Different point values for different contribution types
+            let pointsToAdd = 0;
+
+            switch (contributionType) {
+                case 'itemFound':
+                    pointsToAdd = 10;
+                    await updateDoc(userRef, {
+                        'contributions.itemsFound': increment(1),
+                        'contributions.totalPoints': increment(pointsToAdd),
+                        'contributions.lastContributionDate': serverTimestamp()
+                    });
+                    break;
+                case 'itemReturned':
+                    pointsToAdd = 15;
+                    await updateDoc(userRef, {
+                        'contributions.itemsReturned': increment(1),
+                        'contributions.totalPoints': increment(pointsToAdd),
+                        'contributions.lastContributionDate': serverTimestamp()
+                    });
+                    break;
+                default:
+                    break;
+            }
+
+            // Refresh user data if it's the current user
+            if (currentUser && userId === currentUser.uid) {
+                await fetchUserData(currentUser);
+            }
+
+            return pointsToAdd;
+        } catch (err) {
+            console.error("Error updating user contributions:", err);
+            return 0;
+        }
+    };
+
+    // Get user reputation level
+    const getUserReputationLevel = (points) => {
+        if (!points && userData?.contributions?.totalPoints) {
+            points = userData.contributions.totalPoints;
+        }
+
+        if (!points) return {level: 'Newcomer', color: '#777'};
+
+        if (points < 50) return {level: 'Newcomer', color: '#777'};
+        if (points < 100) return {level: 'Helper', color: '#4CAF50'};
+        if (points < 200) return {level: 'Contributor', color: '#2196F3'};
+        if (points < 400) return {level: 'Benefactor', color: '#9C27B0'};
+
+        return {level: 'Community Champion', color: '#FF9800'};
     };
 
     // Register user with email and password
@@ -184,7 +250,9 @@ export const AuthProvider = ({children}) => {
         loginWithGoogle,
         logout,
         resetPassword,
-        error
+        error,
+        updateUserContributions,
+        getUserReputationLevel
     };
 
     return (
