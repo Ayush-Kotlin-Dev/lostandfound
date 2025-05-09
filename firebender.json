@@ -1,0 +1,10 @@
+{
+  "rules": [
+    "Understand the project: You are working on a Lost and Found application that helps students of my college report lost items and find items that others have reported as found. The platform connects students of the university who have lost items with those who have found them.",
+    "React Architecture: Implement a component-based architecture using React functional components and hooks. Organize code into feature-based directories with clear separation between UI components, services, and state management.",
+    "State Management: Use React Context API and hooks for global state management. For complex state logic, consider implementing Redux with proper actions, reducers, and selectors patterns.",
+    "Firebase Integration: Utilize Firebase Authentication for user management with email/password and social login options. Implement Firestore for database operations with proper security rules. Use Firebase Storage for handling images of lost and found items.",
+    "UI Implementation: Follow Material Design principles and implement responsive layouts that work across desktop and mobile devices. Use CSS modules or styled-components for styling to ensure component encapsulation.",
+    "Form Handling: Implement robust form validation using formik or react-hook-form with clear error messages and user feedback. Ensure all user inputs are properly validated on both client and server sides."
+  ]
+}
