@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add dashboard layout, category filter, item grid, report item form, and top app bar components with styles for enhanced user interface and profile management">
-      <change afterPath="$PROJECT_DIR$/src/components/items/EditItemForm.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/items/MyItemsScreen.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/profile/ProfileScreen.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly">
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/items/ItemCard.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ItemCard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/items/ItemsGrid.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ItemsGrid.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +66,7 @@
       <option name="presentableId" value="Default" />
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
-      <workItem from="1746817300524" duration="3240000" />
+      <workItem from="1746817300524" duration="3552000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -114,7 +108,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746820080804</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly">
+      <option name="closed" value="true" />
+      <created>1746820743931</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1746820743931</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -149,6 +151,7 @@
     <MESSAGE value="implement user data fetching and storage in auth context for enhanced profile management" />
     <MESSAGE value="add dashboard component and styles for user interface" />
     <MESSAGE value="add dashboard layout, category filter, item grid, report item form, and top app bar components with styles for enhanced user interface and profile management" />
-    <option name="LAST_COMMIT_MESSAGE" value="add dashboard layout, category filter, item grid, report item form, and top app bar components with styles for enhanced user interface and profile management" />
+    <MESSAGE value="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly" />
   </component>
 </project>

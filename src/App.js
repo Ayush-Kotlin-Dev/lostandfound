@@ -14,6 +14,7 @@ import ReportItemForm from './components/items/ReportItemForm';
 import ProfileScreen from './components/profile/ProfileScreen';
 import MyItemsScreen from './components/items/MyItemsScreen';
 import EditItemForm from './components/items/EditItemForm';
+import ItemDetailsScreen from './components/items/ItemDetailsScreen';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
                           <Route path="/profile" element={<ProtectedRoute><ProfileScreen/></ProtectedRoute>}/>
                           <Route path="/my-items" element={<ProtectedRoute><MyItemsScreen/></ProtectedRoute>}/>
                           <Route path="/edit-item/:id" element={<ProtectedRoute><EditItemForm/></ProtectedRoute>}/>
+                          <Route path="/item/:id" element={<ProtectedRoute><ItemDetailsScreen/></ProtectedRoute>}/>
 
                           <Route path="/" element={<Navigate to="/dashboard"/>}/>
                       </Routes>
