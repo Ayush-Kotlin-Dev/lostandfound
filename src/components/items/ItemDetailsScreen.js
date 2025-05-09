@@ -16,7 +16,9 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
-    TextField
+    TextField,
+    Collapse,
+    IconButton
 } from '@mui/material';
 import {
     LocationOn as LocationIcon,
@@ -25,7 +27,9 @@ import {
     Phone as PhoneIcon,
     Email as EmailIcon,
     Person as PersonIcon,
-    CheckCircle as CheckCircleIcon
+    CheckCircle as CheckCircleIcon,
+    Chat as ChatIcon,
+    ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
 import {useParams, useNavigate} from 'react-router-dom';
 import {doc, getDoc, updateDoc} from 'firebase/firestore';
@@ -33,6 +37,7 @@ import {db} from '../../firebase/config';
 import TopAppBar from '../layout/TopAppBar';
 import {useAuth} from '../../context/AuthContext';
 import {useItems} from '../../context/ItemsContext';
+import ChatBox from '../chat/ChatBox';
 
 // Helper to format date
 const formatDate = (timestamp) => {
@@ -67,6 +72,9 @@ export default function ItemDetailsScreen() {
     const [submitting, setSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [contributionPoints, setContributionPoints] = useState(0);
+
+    // State for chat
+    const [chatOpen, setChatOpen] = useState(false);
 
     // Fetch item details
     useEffect(() => {
@@ -228,24 +236,24 @@ export default function ItemDetailsScreen() {
 
     // Error state
     if (error || !item) {
-        return (
-            <div>
-                <TopAppBar/>
-                <Container maxWidth="lg" sx={{mt: 4}}>
-                    <Alert severity="error" sx={{my: 2}}>
-                        {error || 'Item not found'}
-                    </Alert>
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate('/dashboard')}
-                        sx={{mt: 2}}
-                    >
-                        Back to Dashboard
-                    </Button>
-                </Container>
-            </div>
-        );
-    }
+    return (
+        <div>
+            <TopAppBar/>
+            <Container maxWidth="lg" sx={{mt: 4}}>
+                <Alert severity="error" sx={{my: 2}}>
+                    {error || 'Item not found'}
+                </Alert>
+                <Button
+                    variant="contained"
+                    onClick={() => navigate('/dashboard')}
+                    sx={{mt: 2}}
+                >
+                    Back to Dashboard
+                </Button>
+            </Container>
+        </div>
+    );
+  }
 
     return (
         <div>
@@ -283,8 +291,8 @@ export default function ItemDetailsScreen() {
                         alt={item.title}
                         style={{width: '100%', display: 'block'}}
                     />
-                </Box>
-            )}
+            </Box>
+          )}
 
             {/* Category Tag */}
             <Box sx={{mb: 3}}>
@@ -353,6 +361,48 @@ export default function ItemDetailsScreen() {
           </Grid>
         </Paper>
 
+          {/* Chat Section - Only show if the item has an owner different from current user */}
+          {item && item.userId !== currentUser?.uid && (
+              <Paper elevation={3} sx={{p: 4, borderRadius: 2, mb: 4}}>
+                  <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                      <Typography variant="h6">
+                          <ChatIcon sx={{mr: 1, verticalAlign: 'middle'}}/>
+                          Private Discussion
+              </Typography>
+              <Button
+                  variant="outlined"
+                  endIcon={<ExpandMoreIcon sx={{
+                      transform: chatOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.3s'
+                  }}/>}
+                  onClick={() => setChatOpen(!chatOpen)}
+              >
+                  {chatOpen ? 'Close Chat' : 'Open Chat'}
+              </Button>
+            </Box>
+
+              <Typography variant="body2" color="text.secondary" paragraph>
+                  You can discuss privately with {item.userName || 'the user'} about
+                  this {item.status === itemStatus.LOST ? 'lost' : 'found'} item.
+                  Your messages can be sent anonymously if you prefer.
+              </Typography>
+
+              <Collapse in={chatOpen}>
+                  <Box sx={{mt: 2}}>
+                      <ChatBox
+                          otherUser={{
+                              userId: item.userId,
+                              displayName: item.userName,
+                              photoURL: item.userPhotoURL
+                          }}
+                          itemId={item.id}
+                          itemTitle={item.title}
+                      />
+                  </Box>
+              </Collapse>
+          </Paper>
+        )}
+
           {/* User Information Paper */}
           <Paper elevation={3} sx={{p: 4, borderRadius: 2, mb: 4}}>
               <Typography variant="h6" gutterBottom>
@@ -384,29 +434,29 @@ export default function ItemDetailsScreen() {
                   Back
               </Button>
 
-            {/* Show "I Found This" button only for lost items that aren't claimed */}
-            {item.status === itemStatus.LOST && !item.claimedBy && (
-                <Button
-                    variant="contained"
-                    color="success"
-                    startIcon={<CheckCircleIcon/>}
-                    onClick={() => setFoundDialogOpen(true)}
-                >
-                    I Found This
-                </Button>
-            )}
+              {/* Show "I Found This" button only for lost items that aren't claimed */}
+              {item.status === itemStatus.LOST && !item.claimedBy && (
+                  <Button
+                      variant="contained"
+                      color="success"
+                      startIcon={<CheckCircleIcon/>}
+                      onClick={() => setFoundDialogOpen(true)}
+                  >
+                      I Found This
+                  </Button>
+              )}
 
-            {/* Show "This is Mine" button only for found items that aren't claimed */}
-            {item.status === itemStatus.FOUND && !item.claimedBy && (
-                <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<PersonIcon/>}
-                    onClick={() => setFoundDialogOpen(true)}
-                >
-                    This is Mine
-                </Button>
-            )}
+              {/* Show "This is Mine" button only for found items that aren't claimed */}
+              {item.status === itemStatus.FOUND && !item.claimedBy && (
+                  <Button
+                      variant="contained"
+                      color="primary"
+                      startIcon={<PersonIcon/>}
+                      onClick={() => setFoundDialogOpen(true)}
+                  >
+                      This is Mine
+                  </Button>
+              )}
         </Box>
 
           {/* "I Found This" Dialog */}
@@ -436,30 +486,30 @@ export default function ItemDetailsScreen() {
 
                   {item.status === itemStatus.LOST && (
                       <>
-                          <Grid item xs={12}>
-                              <TextField
-                                  fullWidth
-                                  label="Where did you find it?"
-                                  value={foundLocation}
-                                  onChange={(e) => setFoundLocation(e.target.value)}
-                                  required
-                                  disabled={submitting}
-                              />
-                          </Grid>
-                          <Grid item xs={12}>
-                              <TextField
-                                  fullWidth
-                                  label="Additional Notes"
-                                  multiline
-                                  rows={3}
-                                  value={foundNotes}
-                                  onChange={(e) => setFoundNotes(e.target.value)}
-                                  disabled={submitting}
-                              />
-                          </Grid>
-                      </>
-                  )}
-              </Grid>
+                  <Grid item xs={12}>
+                      <TextField
+                          fullWidth
+                          label="Where did you find it?"
+                          value={foundLocation}
+                          onChange={(e) => setFoundLocation(e.target.value)}
+                          required
+                          disabled={submitting}
+                      />
+                  </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="Additional Notes"
+                            multiline
+                            rows={3}
+                            value={foundNotes}
+                            onChange={(e) => setFoundNotes(e.target.value)}
+                            disabled={submitting}
+                        />
+                    </Grid>
+                </>
+              )}
+            </Grid>
           </DialogContent>
             <DialogActions>
                 <Button

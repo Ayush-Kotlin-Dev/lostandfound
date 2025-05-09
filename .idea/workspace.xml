@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add item details screen and update app routing for item view functionality">
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add user contribution tracking, reputation levels, and progress indicators to profile and item details screens">
+      <change afterPath="$PROJECT_DIR$/src/context/ChatContext.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/context/AuthContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/AuthContext.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +69,7 @@
       <option name="presentableId" value="Default" />
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
-      <workItem from="1746817300524" duration="3866000" />
+      <workItem from="1746817300524" duration="4505000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -125,7 +127,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746821015050</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="add user contribution tracking, reputation levels, and progress indicators to profile and item details screens">
+      <option name="closed" value="true" />
+      <created>1746821388742</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1746821388742</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -162,6 +172,7 @@
     <MESSAGE value="add dashboard layout, category filter, item grid, report item form, and top app bar components with styles for enhanced user interface and profile management" />
     <MESSAGE value="refactor item card and grid components for better reusability and sorting; add profile and my items screens; update layout and context files accordingly" />
     <MESSAGE value="add item details screen and update app routing for item view functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="add item details screen and update app routing for item view functionality" />
+    <MESSAGE value="add user contribution tracking, reputation levels, and progress indicators to profile and item details screens" />
+    <option name="LAST_COMMIT_MESSAGE" value="add user contribution tracking, reputation levels, and progress indicators to profile and item details screens" />
   </component>
 </project>
