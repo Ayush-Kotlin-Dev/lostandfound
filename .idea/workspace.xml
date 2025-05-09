@@ -4,17 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/firebender.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/auth/ForgotPassword.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/auth/ProtectedRoute.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/auth/Register.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/context/AuthContext.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/firebase/config.js" afterDir="false" />
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add login component and authentication styles for user login functionality">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/context/AuthContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/AuthContext.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +17,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Ayush-Kotlin-Dev"
+  }
+}]]></component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/Ayush-Kotlin-Dev/lostandfound.git",
@@ -69,8 +68,25 @@
       <option name="presentableId" value="Default" />
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
-      <workItem from="1746817300524" duration="1352000" />
+      <workItem from="1746817300524" duration="1655000" />
     </task>
+    <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
+      <option name="closed" value="true" />
+      <created>1746818733369</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1746818733370</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add login component and authentication styles for user login functionality">
+      <option name="closed" value="true" />
+      <created>1746818796203</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746818796203</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -98,5 +114,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add firebase authentication context, protected route, and registration component for user auth management" />
+    <MESSAGE value="add login component and authentication styles for user login functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="add login component and authentication styles for user login functionality" />
   </component>
 </project>

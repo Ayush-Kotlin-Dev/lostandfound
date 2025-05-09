@@ -7,14 +7,8 @@ import ForgotPassword from './components/auth/ForgotPassword';
 import {AuthProvider} from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './components/auth/AuthStyles.css';
-
-// Placeholder for dashboard component
-const Dashboard = () => (
-    <div style={{padding: 20}}>
-      <h1>Lost and Found Dashboard</h1>
-      <p>Welcome to the Lost and Found app. This is a protected route that requires authentication.</p>
-    </div>
-);
+import Dashboard from './components/Dashboard';
+import './components/Dashboard.css';
 
 function App() {
   return (
