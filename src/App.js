@@ -11,6 +11,9 @@ import './components/auth/AuthStyles.css';
 import Dashboard from './components/Dashboard';
 import './components/Dashboard.css';
 import ReportItemForm from './components/items/ReportItemForm';
+import ProfileScreen from './components/profile/ProfileScreen';
+import MyItemsScreen from './components/items/MyItemsScreen';
+import EditItemForm from './components/items/EditItemForm';
 
 function App() {
   return (
@@ -22,22 +25,14 @@ function App() {
                           <Route path="/login" element={<Login/>}/>
                           <Route path="/register" element={<Register/>}/>
                           <Route path="/forgot-password" element={<ForgotPassword/>}/>
-                          <Route
-                              path="/dashboard"
-                              element={
-                                  <ProtectedRoute>
-                                      <Dashboard/>
-                                  </ProtectedRoute>
-                              }
-                          />
-                          <Route
-                              path="/report-item"
-                              element={
-                                  <ProtectedRoute>
-                                      <ReportItemForm/>
-                                  </ProtectedRoute>
-                              }
-                          />
+
+                          {/* Protected Routes */}
+                          <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
+                          <Route path="/report-item" element={<ProtectedRoute><ReportItemForm/></ProtectedRoute>}/>
+                          <Route path="/profile" element={<ProtectedRoute><ProfileScreen/></ProtectedRoute>}/>
+                          <Route path="/my-items" element={<ProtectedRoute><MyItemsScreen/></ProtectedRoute>}/>
+                          <Route path="/edit-item/:id" element={<ProtectedRoute><EditItemForm/></ProtectedRoute>}/>
+
                           <Route path="/" element={<Navigate to="/dashboard"/>}/>
                       </Routes>
                   </div>

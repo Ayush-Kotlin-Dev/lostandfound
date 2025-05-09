@@ -32,7 +32,7 @@ const formatDate = (timestamp) => {
     });
 };
 
-export default function ItemCard({item}) {
+export default function ItemCard({item, itemActions}) {
     const navigate = useNavigate();
 
     const handleViewDetails = () => {
@@ -77,64 +77,70 @@ export default function ItemCard({item}) {
                     />
                 </Box>
 
-                <Chip
-                    label={item.category}
-                    size="small"
-                    sx={{mb: 2}}
-                    variant="outlined"
-                />
+          <Chip
+              label={item.category}
+              size="small"
+              sx={{mb: 2}}
+              variant="outlined"
+          />
 
-                <Typography variant="body2" color="text.secondary" sx={{mb: 2}}>
-                    {item.description && item.description.length > 100
-                        ? `${item.description.substring(0, 100)}...`
-                        : item.description}
-                </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{mb: 2}}>
+              {item.description && item.description.length > 100
+                  ? `${item.description.substring(0, 100)}...`
+                  : item.description}
+          </Typography>
 
-                {item.location && (
-                    <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
-                        <LocationIcon fontSize="small" color="action" sx={{mr: 1}}/>
-                        <Typography variant="body2" color="text.secondary">
-                            {item.location}
-                        </Typography>
-                    </Box>
-                )}
+          {item.location && (
+              <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
+                  <LocationIcon fontSize="small" color="action" sx={{mr: 1}}/>
+                  <Typography variant="body2" color="text.secondary">
+                      {item.location}
+                  </Typography>
+              </Box>
+          )}
 
-                <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
-                    <TimeIcon fontSize="small" color="action" sx={{mr: 1}}/>
-                    <Typography variant="body2" color="text.secondary">
-                        {formatDate(item.createdAt)}
-                    </Typography>
-                </Box>
-            </CardContent>
+          <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
+              <TimeIcon fontSize="small" color="action" sx={{mr: 1}}/>
+              <Typography variant="body2" color="text.secondary">
+                  {formatDate(item.createdAt)}
+              </Typography>
+          </Box>
+      </CardContent>
 
-            <Divider/>
+        <Divider/>
 
-            <Box sx={{p: 2, display: 'flex', alignItems: 'center'}}>
-                <Avatar
-                    src={item.userPhotoURL}
-                    alt={item.userName}
-                    sx={{width: 24, height: 24, mr: 1}}
-                />
-                <Typography variant="body2" color="text.secondary">
-                    {item.userName}
-                </Typography>
-            </Box>
+        <Box sx={{p: 2, display: 'flex', alignItems: 'center'}}>
+            <Avatar
+                src={item.userPhotoURL}
+                alt={item.userName}
+                sx={{width: 24, height: 24, mr: 1}}
+            />
+            <Typography variant="body2" color="text.secondary">
+                {item.userName}
+            </Typography>
+        </Box>
 
-            <CardActions>
-                <Button size="small" color="primary" onClick={handleViewDetails}>
-                    View Details
-                </Button>
-                {item.status === ITEM_STATUS.LOST && (
-                    <Button size="small" color="success">
-                        I Found This
+        <CardActions>
+            {itemActions ? (
+                itemActions(item)
+            ) : (
+                <>
+                    <Button size="small" color="primary" onClick={handleViewDetails}>
+                        View Details
                     </Button>
-                )}
-                {item.status === ITEM_STATUS.FOUND && (
-                    <Button size="small" color="primary">
-                        This is Mine
-                    </Button>
-                )}
-            </CardActions>
-        </Card>
-    );
+                    {item.status === ITEM_STATUS.LOST && (
+                        <Button size="small" color="success">
+                            I Found This
+                        </Button>
+                    )}
+                    {item.status === ITEM_STATUS.FOUND && (
+                        <Button size="small" color="primary">
+                            This is Mine
+                        </Button>
+                    )}
+                </>
+            )}
+        </CardActions>
+    </Card>
+  );
 }

@@ -139,7 +139,7 @@ export default function TopAppBar() {
             <Divider/>
             <List>
                 {menuItems.map((item, index) => (
-                    <ListItem button key={item.text} onClick={item.onClick}>
+                    <ListItem key={item.text} onClick={item.onClick}>
                         <ListItemIcon>
                             {item.icon}
                         </ListItemIcon>

@@ -92,14 +92,26 @@ export const ItemsProvider = ({children}) => {
             setLoading(true);
             const q = query(
                 collection(db, 'items'),
-                where('userId', '==', currentUser.uid),
-                orderBy('createdAt', 'desc')
+                where('userId', '==', currentUser.uid)
             );
             const snapshot = await getDocs(q);
             const items = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
+
+            // Sort the items client-side instead
+            items.sort((a, b) => {
+                // Handle cases where createdAt might be undefined or a Firestore Timestamp
+                if (!a.createdAt) return 1;
+                if (!b.createdAt) return -1;
+
+                const dateA = a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+                const dateB = b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+
+                return dateB - dateA; // descending order
+            });
+
             setMyItems(items);
         } catch (error) {
             console.error('Error fetching my items:', error);
