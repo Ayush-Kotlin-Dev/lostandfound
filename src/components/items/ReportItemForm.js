@@ -15,7 +15,8 @@ import {
     Alert,
     CircularProgress,
     InputAdornment,
-    IconButton
+    IconButton,
+    LinearProgress
 } from '@mui/material';
 import {useItems} from '../../context/ItemsContext';
 import {useNavigate} from 'react-router-dom';
@@ -29,11 +30,16 @@ import {
     Phone as PhoneIcon,
     Telegram as TelegramIcon,
     Psychology as AiIcon,
-    Close as CloseIcon
+    Close as CloseIcon,
+    CloudUpload as UploadIcon,
+    Delete as DeleteIcon
 } from '@mui/icons-material';
 import {useAuth} from '../../context/AuthContext';
 import TELEGRAM_CONFIG from '../../config/telegramConfig';
 import {isTelegramNotificationDismissed, dismissTelegramNotification} from '../../utils/notificationUtils';
+import {storage} from '../../firebase/config';
+import {ref as storageRef, uploadBytes, getDownloadURL} from 'firebase/storage';
+import {v4 as uuidv4} from 'uuid';
 
 export default function ReportItemForm() {
     const {categories, status, reportItem} = useItems();
@@ -49,9 +55,13 @@ export default function ReportItemForm() {
         date: '',
         contact: currentUser?.phoneNumber || '',
         status: status.LOST,
-        imageUrl: '' // In a real app, you'd implement file upload
+        imageUrl: ''
     });
 
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
@@ -74,6 +84,75 @@ export default function ReportItemForm() {
         setShowTelegramNotification(false);
     };
 
+    const handleImageChange = (e) => {
+        if (e.target.files[0]) {
+            const file = e.target.files[0];
+
+            // Check file size (limit to 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Image size should be less than 5MB');
+                return;
+            }
+
+            // Check file type
+            if (!file.type.match('image.*')) {
+                setError('Please select an image file (JPEG, PNG, etc.)');
+                return;
+            }
+
+            // Clear any manually entered URL since we're uploading a file
+            setFormData(prev => ({...prev, imageUrl: ''}));
+
+            setSelectedImage(file);
+            setImagePreview(URL.createObjectURL(file));
+            setError(''); // Clear any previous errors
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
+
+        // Clear the file input by creating a reference to it
+        const fileInput = document.getElementById('image-upload-button');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    };
+
+    const uploadImageToStorage = async () => {
+        if (!selectedImage) return null;
+
+        try {
+            setUploading(true);
+
+            // Create a unique filename with timestamp to avoid name conflicts
+            const timestamp = new Date().getTime();
+            const fileName = `item-images/${currentUser.uid}/${timestamp}-${uuidv4()}-${selectedImage.name}`;
+            const fileRef = storageRef(storage, fileName);
+
+            // Start upload
+            setUploadProgress(10);
+
+            // Upload the file
+            const uploadTask = await uploadBytes(fileRef, selectedImage);
+
+            // Show progress
+            setUploadProgress(60);
+
+            // Get the download URL
+            const downloadURL = await getDownloadURL(fileRef);
+            setUploadProgress(100);
+
+            return downloadURL;
+        } catch (err) {
+            console.error('Error uploading image:', err);
+            throw new Error('Failed to upload image');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -82,16 +161,34 @@ export default function ReportItemForm() {
             return;
         }
 
-        const cleanFormData = {
-            ...formData,
-            imageUrl: formData.imageUrl?.trim() || ''
-        };
-
         try {
             setLoading(true);
             setError('');
+            setUploadProgress(0);
 
-            const result = await reportItem(cleanFormData);
+            // Upload image if selected
+            let imageUrl = '';
+            if (selectedImage) {
+                try {
+                    imageUrl = await uploadImageToStorage();
+                } catch (imgError) {
+                    setError('Failed to upload image. Please try again.');
+                    setLoading(false);
+                    setUploadProgress(0);
+                    return;
+                }
+            } else if (formData.imageUrl?.trim()) {
+                // Use the manually entered URL if no file was selected
+                imageUrl = formData.imageUrl.trim();
+            }
+
+            // Create the final data object to be saved
+            const finalFormData = {
+                ...formData,
+                imageUrl
+            };
+
+            const result = await reportItem(finalFormData);
 
             if (result) {
                 setSuccess(true);
@@ -289,21 +386,108 @@ export default function ReportItemForm() {
                                 />
                             </Grid>
 
-                            {/* Image URL (In a real app, you'd implement file upload) */}
+                            {/* Image Upload */}
                             <Grid item xs={12}>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Upload Image (recommended)
+                                </Typography>
+                                <Box sx={{mb: 2}}>
+                                    <input
+                                        accept="image/*"
+                                        style={{display: 'none'}}
+                                        id="image-upload-button"
+                                        type="file"
+                                        onChange={handleImageChange}
+                                    />
+                                    <label htmlFor="image-upload-button">
+                                        <Button
+                                            variant="outlined"
+                                            component="span"
+                                            startIcon={<UploadIcon/>}
+                                        >
+                                            Choose Image
+                                        </Button>
+                                    </label>
+                                    {selectedImage && (
+                                        <>
+                                            <Typography variant="body2" sx={{ml: 2, display: 'inline'}}>
+                                                {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(2)} MB)
+                                            </Typography>
+                                            <IconButton
+                                                color="error"
+                                                size="small"
+                                                onClick={handleRemoveImage}
+                                                sx={{ml: 1, verticalAlign: 'middle'}}
+                                            >
+                                                <DeleteIcon fontSize="small"/>
+                                            </IconButton>
+                                        </>
+                                    )}
+                                </Box>
+
+                                {imagePreview && (
+                                    <Box sx={{
+                                        mt: 2,
+                                        mb: 2,
+                                        maxWidth: '300px',
+                                        position: 'relative',
+                                        display: 'inline-block'
+                                    }}>
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            style={{
+                                                width: '100%',
+                                                height: 'auto',
+                                                borderRadius: '4px',
+                                                border: '1px solid #ddd'
+                                            }}
+                                        />
+                                        <IconButton
+                                            color="error"
+                                            size="small"
+                                            onClick={handleRemoveImage}
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 8,
+                                                right: 8,
+                                                bgcolor: 'rgba(255,255,255,0.8)',
+                                                '&:hover': {
+                                                    bgcolor: 'rgba(255,255,255,0.9)',
+                                                }
+                                            }}
+                                        >
+                                            <DeleteIcon fontSize="small"/>
+                                        </IconButton>
+                                    </Box>
+                                )}
+
+                                <Typography variant="caption" color="textSecondary">
+                                    Or, alternatively, provide an image URL:
+                                </Typography>
                                 <TextField
                                     fullWidth
-                                    label="Image URL (optional)"
+                                    margin="normal"
+                                    label="Image URL (alternative to upload)"
                                     name="imageUrl"
                                     value={formData.imageUrl}
                                     onChange={handleChange}
                                     placeholder="https://example.com/image.jpg"
-                                    helperText="Provide a direct link to an image of the item. The image will be downloaded and forwarded to the Telegram channel for better visibility."
+                                    helperText="Only use this if you cannot upload an image directly"
+                                    disabled={!!selectedImage}
                                 />
-                                <Typography variant="caption" color="textSecondary" sx={{mt: 1, display: 'block'}}>
-                                    Tip: You can use image hosting services like imgur.com to upload your image and
-                                    paste the direct link here.
-                                </Typography>
+                                {uploading && (
+                                    <Box sx={{mt: 2, width: '100%'}}>
+                                        <Typography variant="body2" color="primary" gutterBottom>
+                                            Uploading image... {uploadProgress}%
+                                        </Typography>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={uploadProgress}
+                                            sx={{height: 8, borderRadius: 5}}
+                                        />
+                                    </Box>
+                                )}
                             </Grid>
 
                             <Grid item xs={12}>
@@ -318,9 +502,16 @@ export default function ReportItemForm() {
                                         type="submit"
                                         variant="contained"
                                         color="primary"
-                                        disabled={loading}
+                                        disabled={loading || uploading}
                                     >
-                                        {loading ? <CircularProgress size={24}/> : 'Report Item'}
+                                        {loading ?
+                                            <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                                <CircularProgress size={24} sx={{mr: 1}}/>
+                                                {uploadProgress > 0 && uploadProgress < 100 ?
+                                                    `Uploading... ${uploadProgress}%` : 'Processing...'}
+                                            </Box> :
+                                            'Report Item'
+                                        }
                                     </Button>
                                 </Box>
                             </Grid>
