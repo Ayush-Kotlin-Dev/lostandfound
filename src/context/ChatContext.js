@@ -33,17 +33,22 @@ export const ChatProvider = ({children}) => {
     const initializeChat = async (itemId, otherUserId, isItemAuthor = false) => {
         if (!currentUser) return null;
 
-        // Reset states when initializing a new chat
-        setLoading(true);
-        setError(null);
-
-        // Store current activeChat to compare and avoid redundant updates
+        // Reset states when initializing a new chat - unless we're already in the same chat
         const currentActiveChat = isItemAuthor ? `item_${itemId}` :
-            [currentUser.uid, otherUserId].sort().join('_') + `_${itemId}`;
+        [currentUser.uid, otherUserId].sort().join('_') + `_${itemId}`;
 
-        // Only update messages if we're switching to a different chat
-        if (activeChat !== currentActiveChat) {
+        // Only process if we're switching chats or it's new
+        if (activeChat !== currentActiveChat || !activeChat) {
+            // Set loading state
+            setLoading(true);
+            setError(null);
+
+            // Clear messages when switching chats
             setMessages([]);
+        } else {
+            // If we're already in this chat, just return the chat ID without reinitializing
+            // This prevents unnecessary loading states
+            return currentActiveChat;
         }
 
         // Update isAuthorView state
@@ -100,6 +105,8 @@ export const ChatProvider = ({children}) => {
             console.error('Error initializing chat:', error);
             setError('Failed to initialize chat');
             setLoading(false);
+            // Return null to indicate failure
+            return null;
         }
 
         return chatId;
@@ -107,7 +114,7 @@ export const ChatProvider = ({children}) => {
 
     // Send a message in the active chat
     const sendMessage = async (content, isAnonymous = false) => {
-        if (!activeChat || !currentUser) return;
+        if (!activeChat || !currentUser) return false;
 
         try {
             // If we're in author view, we need to handle this differently
@@ -132,6 +139,20 @@ export const ChatProvider = ({children}) => {
                     timestamp: serverTimestamp(),
                     chatId: lastMsgChatId
                 });
+
+                // Add a temporary message to local state for immediate feedback
+                const tempMsg = {
+                    id: Math.random().toString(36).substring(2, 15),
+                    content,
+                    senderId: currentUser.uid,
+                    senderName: isAnonymous ? "Anonymous" : currentUser.displayName || "User",
+                    senderPhotoURL: currentUser.photoURL,
+                    isAnonymous,
+                    timestamp: Date.now(),
+                    chatId: lastMsgChatId
+                };
+
+                setMessages(prev => [...prev, tempMsg]);
             } else {
                 // Normal message sending for direct chats
                 const messagesRef = ref(rtdb, `messages/${activeChat}`);
@@ -146,6 +167,20 @@ export const ChatProvider = ({children}) => {
                     timestamp: serverTimestamp(),
                     chatId: activeChat
                 });
+
+                // Add a temporary message to local state for immediate feedback
+                const tempMsg = {
+                    id: Math.random().toString(36).substring(2, 15),
+                    content,
+                    senderId: currentUser.uid,
+                    senderName: isAnonymous ? "Anonymous" : currentUser.displayName || "User",
+                    senderPhotoURL: currentUser.photoURL,
+                    isAnonymous,
+                    timestamp: Date.now(),
+                    chatId: activeChat
+                };
+
+                setMessages(prev => [...prev, tempMsg]);
             }
 
             return true;
@@ -176,12 +211,8 @@ export const ChatProvider = ({children}) => {
 
         // Add a safety timeout to prevent infinite loading
         const timeoutId = setTimeout(() => {
-            if (loading) {
-                console.warn('Chat loading timed out');
-                setLoading(false);
-                setError('Loading timed out. Please try again.');
-            }
-        }, 10000); // 10 seconds timeout
+            setLoading(false); // Force loading to false after timeout
+        }, 5000); // 5 seconds maximum loading time
 
         let messagesRef;
 
@@ -262,7 +293,8 @@ export const ChatProvider = ({children}) => {
         initializeChat,
         sendMessage,
         setActiveChat,
-        isAuthorView
+        isAuthorView,
+        setLoading
     };
 
     return (

@@ -42,51 +42,61 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
     const [newMessage, setNewMessage] = useState('');
     const [isAnonymous, setIsAnonymous] = useState(true);
     const messagesEndRef = useRef(null);
-    const [localLoading, setLocalLoading] = useState(true);
-    const [initAttempted, setInitAttempted] = useState(false);
+    const [initializing, setInitializing] = useState(false);
+    const [initialized, setInitialized] = useState(false);
+    const [showLoading, setShowLoading] = useState(true);
 
     // Initialize chat when component mounts
     useEffect(() => {
         let isMounted = true;
-        let timeoutId = null;
 
-        // Only initialize chat if we haven't already tried
-        if (!initAttempted) {
-            const initChat = async () => {
-                if (!currentUser || !itemId) return;
+        const initChat = async () => {
+            if (!currentUser || !itemId || initializing || initialized) return;
 
-                try {
-                    setLocalLoading(true);
+            try {
+                setInitializing(true);
 
-                    if (isItemAuthor) {
-                        // Item author can see all chats about this item
-                        await initializeChat(itemId, null, true);
-                    } else if (otherUser && otherUser.userId) {
-                        // Normal user chatting with the item author
-                        await initializeChat(itemId, otherUser.userId);
-                    }
-                } catch (err) {
-                    console.error("Failed to initialize chat:", err);
-                } finally {
-                    if (isMounted) {
-                        setInitAttempted(true);
-                        // Delay hiding the loader for a smoother UX
-                        timeoutId = setTimeout(() => {
-                            setLocalLoading(false);
-                        }, 300);
-                    }
+                if (isItemAuthor) {
+                    // Item author can see all chats about this item
+                    await initializeChat(itemId, null, true);
+                } else if (otherUser && otherUser.userId) {
+                    // Normal user chatting with the item author
+                    await initializeChat(itemId, otherUser.userId);
                 }
-            };
 
-            initChat();
-        }
+                if (isMounted) {
+                    setInitialized(true);
+                }
+            } catch (err) {
+                console.error("Failed to initialize chat:", err);
+            } finally {
+                if (isMounted) {
+                    setInitializing(false);
+                }
+            }
+        };
+
+        initChat();
 
         // Clean up function
         return () => {
             isMounted = false;
-            if (timeoutId) clearTimeout(timeoutId);
         };
-    }, [currentUser, otherUser, itemId, isItemAuthor, initializeChat, initAttempted]);
+    }, [currentUser, otherUser, itemId, isItemAuthor, initializeChat, initializing, initialized]);
+
+    // Add a loading timeout to avoid infinite loading
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowLoading(false);
+            // If still loading after timeout, force initialized state
+            if (!initialized && (loading || initializing)) {
+                setInitialized(true);
+                setInitializing(false);
+            }
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, [loading, initializing, initialized]);
 
     // Scroll to bottom when messages change
     useEffect(() => {
@@ -105,29 +115,17 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
     };
 
     // Handle retrying when there's an error
-    const handleRetry = async () => {
-        setLocalLoading(true);
-        setInitAttempted(false);
-
-        try {
-            if (isItemAuthor) {
-                // Item author can see all chats about this item
-                await initializeChat(itemId, null, true);
-            } else if (otherUser && otherUser.userId) {
-                // Normal user chatting with the item author
-                await initializeChat(itemId, otherUser.userId);
-            }
-        } catch (err) {
-            console.error("Failed to retry chat initialization:", err);
-        } finally {
-            setTimeout(() => setLocalLoading(false), 300);
-        }
+    const handleRetry = () => {
+        // Reset state
+        setInitialized(false);
+        setInitializing(false);
+        setShowLoading(true);
     };
 
     // Show appropriate loading or error states
     const renderContent = () => {
         // Initial loading state
-        if ((loading || localLoading) && !initAttempted) {
+        if (showLoading && (loading || initializing) && !initialized && messages.length === 0) {
             return (
                 <Box sx={{
                     display: 'flex',
@@ -142,6 +140,14 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
                     <Typography variant="body2" sx={{mt: 2, color: 'text.secondary'}}>
                         Loading conversation...
                     </Typography>
+                    <Button
+                        variant="text"
+                        color="primary"
+                        onClick={handleRetry}
+                        sx={{mt: 2}}
+                    >
+                        Click here if loading takes too long
+                    </Button>
                 </Box>
             );
         }
@@ -328,7 +334,6 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
                                 onChange={() => setIsAnonymous(!isAnonymous)}
                                 color="primary"
                                 size="small"
-                                disabled={loading || localLoading}
                             />
                         }
                         label={
@@ -361,13 +366,12 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
                     size="small"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    disabled={loading || localLoading}
                     sx={{mr: 1}}
                 />
                 <IconButton
                     color="primary"
                     type="submit"
-                    disabled={!newMessage.trim() || loading || localLoading}
+                    disabled={!newMessage.trim()}
                 >
                     <SendIcon/>
                 </IconButton>
