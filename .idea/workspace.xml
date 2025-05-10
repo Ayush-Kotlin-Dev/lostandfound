@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add chat functionality and update item details screen with contribution tracking and user interaction features">
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add chat component and update item details screen with contribution tracking and user interaction features">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/chat/ChatBox.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/chat/ChatBox.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/context/ChatContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/ChatContext.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,18 +18,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Ayush-Kotlin-Dev"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Ayush-Kotlin-Dev&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Ayush-Kotlin-Dev/lostandfound.git",
-    "accountId": "f838ec08-bda1-4c56-9b10-001d12802516"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Ayush-Kotlin-Dev/lostandfound.git&quot;,
+    &quot;accountId&quot;: &quot;f838ec08-bda1-4c56-9b10-001d12802516&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -35,22 +38,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -66,7 +69,8 @@
       <option name="presentableId" value="Default" />
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
-      <workItem from="1746817300524" duration="5431000" />
+      <workItem from="1746817300524" duration="5912000" />
+      <workItem from="1746904094804" duration="367000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -140,7 +144,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746821868830</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="add chat component and update item details screen with contribution tracking and user interaction features">
+      <option name="closed" value="true" />
+      <created>1746823379844</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1746823379845</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -179,6 +191,7 @@
     <MESSAGE value="add item details screen and update app routing for item view functionality" />
     <MESSAGE value="add user contribution tracking, reputation levels, and progress indicators to profile and item details screens" />
     <MESSAGE value="add chat functionality and update item details screen with contribution tracking and user interaction features" />
-    <option name="LAST_COMMIT_MESSAGE" value="add chat functionality and update item details screen with contribution tracking and user interaction features" />
+    <MESSAGE value="add chat component and update item details screen with contribution tracking and user interaction features" />
+    <option name="LAST_COMMIT_MESSAGE" value="add chat component and update item details screen with contribution tracking and user interaction features" />
   </component>
 </project>

@@ -26,14 +26,23 @@ export const ChatProvider = ({children}) => {
     const [activeChat, setActiveChat] = useState(null);
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isAuthorView, setIsAuthorView] = useState(false);
 
     // Initialize or get chat session between two users for an item
-    const initializeChat = async (itemId, otherUserId) => {
+    const initializeChat = async (itemId, otherUserId, isItemAuthor = false) => {
         if (!currentUser) return null;
 
-        // Create a unique chat ID by sorting and combining user IDs
-        const chatId = [currentUser.uid, otherUserId].sort().join('_') + `_${itemId}`;
+        setIsAuthorView(isItemAuthor);
 
+        if (isItemAuthor) {
+            // For item authors, we set the itemId as the active "chat"
+            // This indicates we want to see all messages about this item
+            setActiveChat(`item_${itemId}`);
+            return `item_${itemId}`;
+        }
+
+        // For regular users, create a unique chat ID by sorting and combining user IDs
+        const chatId = [currentUser.uid, otherUserId].sort().join('_') + `_${itemId}`;
         setActiveChat(chatId);
 
         // Check if chat exists in the chats list, if not create it
@@ -72,16 +81,43 @@ export const ChatProvider = ({children}) => {
         if (!activeChat || !currentUser) return;
 
         try {
-            const messagesRef = ref(rtdb, `messages/${activeChat}`);
-            const newMessageRef = push(messagesRef);
+            // If we're in author view, we need to handle this differently
+            if (isAuthorView && activeChat.startsWith('item_')) {
+                // We need to get the last message to know which chat to respond to
+                // If there are no messages yet, we can't respond
+                if (messages.length === 0) return false;
 
-            await set(newMessageRef, {
-                content,
-                senderId: currentUser.uid,
-                senderName: isAnonymous ? "Anonymous" : currentUser.displayName || "User",
-                isAnonymous,
-                timestamp: serverTimestamp()
-            });
+                // Get the last message's chat ID
+                const lastMsgChatId = messages[messages.length - 1].chatId;
+
+                // Send message to that specific chat
+                const messagesRef = ref(rtdb, `messages/${lastMsgChatId}`);
+                const newMessageRef = push(messagesRef);
+
+                await set(newMessageRef, {
+                    content,
+                    senderId: currentUser.uid,
+                    senderName: isAnonymous ? "Anonymous" : currentUser.displayName || "User",
+                    senderPhotoURL: currentUser.photoURL,
+                    isAnonymous,
+                    timestamp: serverTimestamp(),
+                    chatId: lastMsgChatId
+                });
+            } else {
+                // Normal message sending for direct chats
+                const messagesRef = ref(rtdb, `messages/${activeChat}`);
+                const newMessageRef = push(messagesRef);
+
+                await set(newMessageRef, {
+                    content,
+                    senderId: currentUser.uid,
+                    senderName: isAnonymous ? "Anonymous" : currentUser.displayName || "User",
+                    senderPhotoURL: currentUser.photoURL,
+                    isAnonymous,
+                    timestamp: serverTimestamp(),
+                    chatId: activeChat
+                });
+            }
 
             return true;
         } catch (error) {
@@ -99,22 +135,62 @@ export const ChatProvider = ({children}) => {
 
         setLoading(true);
 
-        const messagesRef = query(
-            ref(rtdb, `messages/${activeChat}`),
-            orderByChild('timestamp')
-        );
+        let messagesRef;
+
+        if (isAuthorView && activeChat.startsWith('item_')) {
+            // Extract the itemId from the activeChat
+            const itemId = activeChat.replace('item_', '');
+
+            // For item authors, we need to listen to all messages related to their item
+            // This requires a different query approach - we'll use onValue with a filter
+            messagesRef = ref(rtdb, 'messages');
+        } else {
+            // For regular chats, we just listen to the specific chat
+            messagesRef = query(
+                ref(rtdb, `messages/${activeChat}`),
+                orderByChild('timestamp')
+            );
+        }
 
         const unsubscribe = onValue(messagesRef, (snapshot) => {
             const data = snapshot.val();
 
             if (data) {
-                const messageList = Object.entries(data).map(([id, message]) => ({
-                    id,
-                    ...message,
-                    timestamp: message.timestamp || Date.now()
-                })).sort((a, b) => a.timestamp - b.timestamp);
+                if (isAuthorView && activeChat.startsWith('item_')) {
+                    // For author view, we need to filter and combine messages from all chats
+                    // related to this item
+                    const itemId = activeChat.replace('item_', '');
+                    let allItemMessages = [];
 
-                setMessages(messageList);
+                    // Iterate through all chats
+                    Object.entries(data).forEach(([chatId, chatData]) => {
+                        // Check if this chat relates to our item
+                        if (chatId.includes(`_${itemId}`)) {
+                            // Add all messages from this chat
+                            const chatMessages = Object.entries(chatData).map(([msgId, msg]) => ({
+                                id: msgId,
+                                chatId: chatId,  // Store which chat this message belongs to
+                                ...msg,
+                                timestamp: msg.timestamp || Date.now()
+                            }));
+                            allItemMessages = [...allItemMessages, ...chatMessages];
+                        }
+                    });
+
+                    // Sort all messages by timestamp
+                    allItemMessages.sort((a, b) => a.timestamp - b.timestamp);
+                    setMessages(allItemMessages);
+                } else {
+                    // Regular chat processing
+                    const messageList = Object.entries(data).map(([id, message]) => ({
+                        id,
+                        ...message,
+                        chatId: activeChat,
+                        timestamp: message.timestamp || Date.now()
+                    })).sort((a, b) => a.timestamp - b.timestamp);
+
+                    setMessages(messageList);
+                }
             } else {
                 setMessages([]);
             }
@@ -123,7 +199,7 @@ export const ChatProvider = ({children}) => {
         });
 
         return () => unsubscribe();
-    }, [activeChat]);
+    }, [activeChat, isAuthorView]);
 
     // Value to be provided by the context
     const value = {
@@ -133,7 +209,8 @@ export const ChatProvider = ({children}) => {
         loading,
         initializeChat,
         sendMessage,
-        setActiveChat
+        setActiveChat,
+        isAuthorView
     };
 
     return (

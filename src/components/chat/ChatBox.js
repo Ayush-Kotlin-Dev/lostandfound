@@ -34,7 +34,7 @@ const formatTime = (timestamp) => {
     return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 };
 
-export default function ChatBox({otherUser, itemId, itemTitle}) {
+export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
     const {initializeChat, sendMessage, messages, loading} = useChat();
     const {currentUser} = useAuth();
     const [newMessage, setNewMessage] = useState('');
@@ -43,10 +43,16 @@ export default function ChatBox({otherUser, itemId, itemTitle}) {
 
     // Initialize chat when component mounts
     useEffect(() => {
-        if (currentUser && otherUser && itemId) {
-            initializeChat(itemId, otherUser.userId);
+        if (currentUser && itemId) {
+            if (isItemAuthor) {
+                // Item author can see all chats about this item
+                initializeChat(itemId, null, true);
+            } else if (otherUser && otherUser.userId) {
+                // Normal user chatting with the item author
+                initializeChat(itemId, otherUser.userId);
+            }
         }
-    }, [currentUser, otherUser, itemId, initializeChat]);
+    }, [currentUser, otherUser, itemId, isItemAuthor, initializeChat]);
 
     // Scroll to bottom when messages change
     useEffect(() => {
@@ -72,7 +78,11 @@ export default function ChatBox({otherUser, itemId, itemTitle}) {
                     Chat about: {itemTitle || 'Item'}
                 </Typography>
                 <Typography variant="body2">
-                    {otherUser ? `Chatting with ${otherUser.displayName || 'User'}` : 'Loading...'}
+                    {isItemAuthor
+                        ? 'All conversations about this item'
+                        : otherUser
+                            ? `Chatting with ${otherUser.displayName || 'User'}`
+                            : 'Loading...'}
                 </Typography>
             </Box>
 
@@ -113,7 +123,7 @@ export default function ChatBox({otherUser, itemId, itemTitle}) {
                                                 <VisibilityOffIcon fontSize="small"/>
                                             </Avatar>
                                         ) : (
-                                            <Avatar src={otherUser?.photoURL} alt={message.senderName}/>
+                                            <Avatar src={message.senderPhotoURL} alt={message.senderName}/>
                                         )}
                                     </Box>
                                 )}
@@ -141,7 +151,9 @@ export default function ChatBox({otherUser, itemId, itemTitle}) {
                                             >
                                                 Anonymous
                                             </Badge>
-                                        ) : message.senderId === currentUser?.uid ? 'You' : message.senderName}
+                                        ) : message.senderId === currentUser?.uid ? 'You' : (
+                                            isItemAuthor ? `${message.senderName} (User)` : message.senderName
+                                        )}
                                     </Typography>
 
                                     {/* Message Content */}

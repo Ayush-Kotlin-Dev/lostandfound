@@ -361,14 +361,13 @@ export default function ItemDetailsScreen() {
           </Grid>
         </Paper>
 
-          {/* Chat Section - Only show if the item has an owner different from current user */}
-          {item && item.userId !== currentUser?.uid && (
-              <Paper elevation={3} sx={{p: 4, borderRadius: 2, mb: 4}}>
-                  <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
-                      <Typography variant="h6">
-                          <ChatIcon sx={{mr: 1, verticalAlign: 'middle'}}/>
-                          Private Discussion
-              </Typography>
+                {/* Chat Section - Available for everyone */}
+                <Paper elevation={3} sx={{p: 4, borderRadius: 2, mb: 4}}>
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                        <Typography variant="h6">
+                            <ChatIcon sx={{mr: 1, verticalAlign: 'middle'}}/>
+                            Private Discussion
+                        </Typography>
               <Button
                   variant="outlined"
                   endIcon={<ExpandMoreIcon sx={{
@@ -391,17 +390,17 @@ export default function ItemDetailsScreen() {
                   <Box sx={{mt: 2}}>
                       <ChatBox
                           otherUser={{
-                              userId: item.userId,
-                              displayName: item.userName,
-                              photoURL: item.userPhotoURL
+                              userId: currentUser?.uid === item.userId ? null : item.userId,
+                              displayName: currentUser?.uid === item.userId ? null : item.userName,
+                              photoURL: currentUser?.uid === item.userId ? null : item.userPhotoURL
                           }}
                           itemId={item.id}
                           itemTitle={item.title}
+                          isItemAuthor={currentUser?.uid === item.userId}
                       />
                   </Box>
               </Collapse>
           </Paper>
-        )}
 
           {/* User Information Paper */}
           <Paper elevation={3} sx={{p: 4, borderRadius: 2, mb: 4}}>
