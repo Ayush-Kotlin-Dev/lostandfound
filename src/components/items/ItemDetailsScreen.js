@@ -369,39 +369,41 @@ export default function ItemDetailsScreen() {
                             <ChatIcon sx={{mr: 1, verticalAlign: 'middle'}}/>
                             Private Discussion
                         </Typography>
-              <Button
-                  variant="outlined"
-                  endIcon={<ExpandMoreIcon sx={{
-                      transform: chatOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.3s'
-                  }}/>}
-                  onClick={() => setChatOpen(!chatOpen)}
-              >
-                  {chatOpen ? 'Close Chat' : 'Open Chat'}
-              </Button>
-            </Box>
+                        <Button
+                            variant="outlined"
+                            endIcon={<ExpandMoreIcon sx={{
+                                transform: chatOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.3s'
+                            }}/>}
+                            onClick={() => setChatOpen(!chatOpen)}
+                        >
+                            {chatOpen ? 'Close Chat' : 'Open Chat'}
+                        </Button>
+                    </Box>
 
-              <Typography variant="body2" color="text.secondary" paragraph>
-                  You can discuss privately with {item.userName || 'the user'} about
-                  this {item.status === itemStatus.LOST ? 'lost' : 'found'} item.
-                  Your messages can be sent anonymously if you prefer.
-              </Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                        You can discuss privately with {item.userName || 'the user'} about
+                        this {item.status === itemStatus.LOST ? 'lost' : 'found'} item.
+                        Your messages can be sent anonymously if you prefer.
+                    </Typography>
 
-              <Collapse in={chatOpen}>
-                  <Box sx={{mt: 2}}>
-                      <ChatBox
-                          otherUser={{
-                              userId: currentUser?.uid === item.userId ? null : item.userId,
-                              displayName: currentUser?.uid === item.userId ? null : item.userName,
-                              photoURL: currentUser?.uid === item.userId ? null : item.userPhotoURL
-                          }}
-                          itemId={item.id}
-                          itemTitle={item.title}
-                          isItemAuthor={currentUser?.uid === item.userId}
-                      />
-                  </Box>
-              </Collapse>
-          </Paper>
+                    <Collapse in={chatOpen}>
+                        <Box sx={{mt: 2}}>
+                            {chatOpen && (
+                                <ChatBox
+                                    otherUser={{
+                                        userId: currentUser?.uid === item.userId ? null : item.userId,
+                                        displayName: currentUser?.uid === item.userId ? null : item.userName,
+                                        photoURL: currentUser?.uid === item.userId ? null : item.userPhotoURL
+                                    }}
+                                    itemId={item.id}
+                                    itemTitle={item.title}
+                                    isItemAuthor={currentUser?.uid === item.userId}
+                                />
+                            )}
+                        </Box>
+                    </Collapse>
+                </Paper>
 
                 {/* AI-Powered Potential Matches */}
                 <PotentialMatches item={item}/>

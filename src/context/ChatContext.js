@@ -26,51 +26,80 @@ export const ChatProvider = ({children}) => {
     const [activeChat, setActiveChat] = useState(null);
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isAuthorView, setIsAuthorView] = useState(false);
 
     // Initialize or get chat session between two users for an item
     const initializeChat = async (itemId, otherUserId, isItemAuthor = false) => {
         if (!currentUser) return null;
 
-        setIsAuthorView(isItemAuthor);
+        // Reset states when initializing a new chat
+        setLoading(true);
+        setError(null);
+
+        // Store current activeChat to compare and avoid redundant updates
+        const currentActiveChat = isItemAuthor ? `item_${itemId}` :
+            [currentUser.uid, otherUserId].sort().join('_') + `_${itemId}`;
+
+        // Only update messages if we're switching to a different chat
+        if (activeChat !== currentActiveChat) {
+            setMessages([]);
+        }
+
+        // Update isAuthorView state
+        if (isAuthorView !== isItemAuthor) {
+            setIsAuthorView(isItemAuthor);
+        }
 
         if (isItemAuthor) {
             // For item authors, we set the itemId as the active "chat"
             // This indicates we want to see all messages about this item
-            setActiveChat(`item_${itemId}`);
+            if (activeChat !== `item_${itemId}`) {
+                setActiveChat(`item_${itemId}`);
+            }
             return `item_${itemId}`;
         }
 
         // For regular users, create a unique chat ID by sorting and combining user IDs
         const chatId = [currentUser.uid, otherUserId].sort().join('_') + `_${itemId}`;
-        setActiveChat(chatId);
+
+        // Only update if necessary to prevent rerenders
+        if (activeChat !== chatId) {
+            setActiveChat(chatId);
+        }
 
         // Check if chat exists in the chats list, if not create it
-        if (!chats[chatId]) {
-            const chatRef = ref(rtdb, `chats/${chatId}`);
+        try {
+            if (!chats[chatId]) {
+                const chatRef = ref(rtdb, `chats/${chatId}`);
 
-            // Set up basic chat info
-            await set(chatRef, {
-                participants: {
-                    [currentUser.uid]: true,
-                    [otherUserId]: true
-                },
-                itemId: itemId,
-                createdAt: serverTimestamp()
-            });
-
-            // Update local state
-            setChats(prevChats => ({
-                ...prevChats,
-                [chatId]: {
+                // Set up basic chat info
+                await set(chatRef, {
                     participants: {
                         [currentUser.uid]: true,
                         [otherUserId]: true
                     },
                     itemId: itemId,
-                    lastMessage: null
-                }
-            }));
+                    createdAt: serverTimestamp()
+                });
+
+                // Update local state
+                setChats(prevChats => ({
+                    ...prevChats,
+                    [chatId]: {
+                        participants: {
+                            [currentUser.uid]: true,
+                            [otherUserId]: true
+                        },
+                        itemId: itemId,
+                        lastMessage: null
+                    }
+                }));
+            }
+        } catch (error) {
+            console.error('Error initializing chat:', error);
+            setError('Failed to initialize chat');
+            setLoading(false);
         }
 
         return chatId;
@@ -130,10 +159,29 @@ export const ChatProvider = ({children}) => {
     useEffect(() => {
         if (!activeChat) {
             setMessages([]);
+            setLoading(false);
             return;
         }
 
-        setLoading(true);
+        // Avoid setting loading state if it's already true
+        // This prevents potential infinite rerenders
+        if (!loading) {
+            setLoading(true);
+        }
+
+        // Only set error to null if there was an error before
+        if (error) {
+            setError(null);
+        }
+
+        // Add a safety timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+            if (loading) {
+                console.warn('Chat loading timed out');
+                setLoading(false);
+                setError('Loading timed out. Please try again.');
+            }
+        }, 10000); // 10 seconds timeout
 
         let messagesRef;
 
@@ -198,7 +246,10 @@ export const ChatProvider = ({children}) => {
             setLoading(false);
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+            clearTimeout(timeoutId);
+        };
     }, [activeChat, isAuthorView]);
 
     // Value to be provided by the context
@@ -207,6 +258,7 @@ export const ChatProvider = ({children}) => {
         activeChat,
         messages,
         loading,
+        error,
         initializeChat,
         sendMessage,
         setActiveChat,

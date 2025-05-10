@@ -18,7 +18,9 @@ import {
 import {
     Send as SendIcon,
     Visibility as VisibilityIcon,
-    VisibilityOff as VisibilityOffIcon
+    VisibilityOff as VisibilityOffIcon,
+    Refresh as RefreshIcon,
+    ErrorOutline as ErrorIcon
 } from '@mui/icons-material';
 import {useChat} from '../../context/ChatContext';
 import {useAuth} from '../../context/AuthContext';
@@ -35,24 +37,56 @@ const formatTime = (timestamp) => {
 };
 
 export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
-    const {initializeChat, sendMessage, messages, loading} = useChat();
+    const {initializeChat, sendMessage, messages, loading, error} = useChat();
     const {currentUser} = useAuth();
     const [newMessage, setNewMessage] = useState('');
     const [isAnonymous, setIsAnonymous] = useState(true);
     const messagesEndRef = useRef(null);
+    const [localLoading, setLocalLoading] = useState(true);
+    const [initAttempted, setInitAttempted] = useState(false);
 
     // Initialize chat when component mounts
     useEffect(() => {
-        if (currentUser && itemId) {
-            if (isItemAuthor) {
-                // Item author can see all chats about this item
-                initializeChat(itemId, null, true);
-            } else if (otherUser && otherUser.userId) {
-                // Normal user chatting with the item author
-                initializeChat(itemId, otherUser.userId);
-            }
+        let isMounted = true;
+        let timeoutId = null;
+
+        // Only initialize chat if we haven't already tried
+        if (!initAttempted) {
+            const initChat = async () => {
+                if (!currentUser || !itemId) return;
+
+                try {
+                    setLocalLoading(true);
+
+                    if (isItemAuthor) {
+                        // Item author can see all chats about this item
+                        await initializeChat(itemId, null, true);
+                    } else if (otherUser && otherUser.userId) {
+                        // Normal user chatting with the item author
+                        await initializeChat(itemId, otherUser.userId);
+                    }
+                } catch (err) {
+                    console.error("Failed to initialize chat:", err);
+                } finally {
+                    if (isMounted) {
+                        setInitAttempted(true);
+                        // Delay hiding the loader for a smoother UX
+                        timeoutId = setTimeout(() => {
+                            setLocalLoading(false);
+                        }, 300);
+                    }
+                }
+            };
+
+            initChat();
         }
-    }, [currentUser, otherUser, itemId, isItemAuthor, initializeChat]);
+
+        // Clean up function
+        return () => {
+            isMounted = false;
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [currentUser, otherUser, itemId, isItemAuthor, initializeChat, initAttempted]);
 
     // Scroll to bottom when messages change
     useEffect(() => {
@@ -68,6 +102,188 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
         if (success) {
             setNewMessage('');
         }
+    };
+
+    // Handle retrying when there's an error
+    const handleRetry = async () => {
+        setLocalLoading(true);
+        setInitAttempted(false);
+
+        try {
+            if (isItemAuthor) {
+                // Item author can see all chats about this item
+                await initializeChat(itemId, null, true);
+            } else if (otherUser && otherUser.userId) {
+                // Normal user chatting with the item author
+                await initializeChat(itemId, otherUser.userId);
+            }
+        } catch (err) {
+            console.error("Failed to retry chat initialization:", err);
+        } finally {
+            setTimeout(() => setLocalLoading(false), 300);
+        }
+    };
+
+    // Show appropriate loading or error states
+    const renderContent = () => {
+        // Initial loading state
+        if ((loading || localLoading) && !initAttempted) {
+            return (
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                    pt: 3,
+                    pb: 3
+                }}>
+                    <CircularProgress size={32} thickness={4}/>
+                    <Typography variant="body2" sx={{mt: 2, color: 'text.secondary'}}>
+                        Loading conversation...
+                    </Typography>
+                </Box>
+            );
+        }
+
+        // Error state
+        if (error) {
+            return (
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                    pt: 3,
+                    pb: 3
+                }}>
+                    <ErrorIcon color="error" sx={{fontSize: 40, mb: 2}}/>
+                    <Typography variant="body1" gutterBottom color="error">
+                        {error}
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<RefreshIcon/>}
+                        onClick={handleRetry}
+                        sx={{mt: 1}}
+                    >
+                        Try Again
+                    </Button>
+                </Box>
+            );
+        }
+
+        // Empty conversation state
+        if (messages.length === 0) {
+            return (
+                <Box sx={{
+                    textAlign: 'center',
+                    color: 'text.secondary',
+                    mt: 10
+                }}>
+                    <Typography variant="body1">
+                        No messages yet. Start the conversation!
+                    </Typography>
+                </Box>
+            );
+        }
+
+        // Messages list
+        return messages.map(message => (
+            <Box
+                key={message.id}
+                sx={{
+                    alignSelf: message.senderId === currentUser?.uid ? 'flex-end' : 'flex-start',
+                    mb: 1.5
+                }}
+            >
+                <Box sx={{display: 'flex', alignItems: 'flex-end'}}>
+                    {message.senderId !== currentUser?.uid && (
+                        <Box sx={{mr: 1}}>
+                            {message.isAnonymous ? (
+                                <Avatar sx={{bgcolor: 'grey.500'}}>
+                                    <VisibilityOffIcon fontSize="small"/>
+                                </Avatar>
+                            ) : (
+                                <Avatar src={message.senderPhotoURL} alt={message.senderName}/>
+                            )}
+                        </Box>
+                    )}
+
+                    <Box>
+                        {/* Sender Name with Anonymous Badge */}
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                ml: 1,
+                                display: 'block',
+                                textAlign: message.senderId === currentUser?.uid ? 'right' : 'left',
+                                color: 'text.secondary'
+                            }}
+                        >
+                            {message.isAnonymous ? (
+                                <Badge
+                                    overlap="circular"
+                                    anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                    badgeContent={
+                                        <Tooltip title="Anonymous message">
+                                            <VisibilityOffIcon fontSize="inherit"/>
+                                        </Tooltip>
+                                    }
+                                >
+                                    Anonymous
+                                </Badge>
+                            ) : message.senderId === currentUser?.uid ? 'You' : (
+                                isItemAuthor ? `${message.senderName} (User)` : message.senderName
+                            )}
+                        </Typography>
+
+                        {/* Message Content */}
+                        <Paper
+                            elevation={1}
+                            sx={{
+                                p: 1.5,
+                                bgcolor: message.senderId === currentUser?.uid ? 'primary.light' : 'grey.100',
+                                color: message.senderId === currentUser?.uid ? 'white' : 'inherit',
+                                borderRadius: 2,
+                                maxWidth: '300px',
+                                wordBreak: 'break-word'
+                            }}
+                        >
+                            <Typography variant="body1">{message.content}</Typography>
+                        </Paper>
+
+                        {/* Message Timestamp */}
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                ml: 1,
+                                display: 'block',
+                                textAlign: message.senderId === currentUser?.uid ? 'right' : 'left',
+                                color: 'text.secondary'
+                            }}
+                        >
+                            {formatTime(message.timestamp)}
+                        </Typography>
+                    </Box>
+
+                    {message.senderId === currentUser?.uid && (
+                        <Box sx={{ml: 1}}>
+                            {message.isAnonymous ? (
+                                <Avatar sx={{bgcolor: 'primary.dark'}}>
+                                    <VisibilityOffIcon fontSize="small"/>
+                                </Avatar>
+                            ) : (
+                                <Avatar src={currentUser?.photoURL}
+                                        alt={currentUser?.displayName || 'You'}/>
+                            )}
+                        </Box>
+                    )}
+                </Box>
+            </Box>
+        ));
     };
 
     return (
@@ -96,111 +312,7 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
                 display: 'flex',
                 flexDirection: 'column'
             }}>
-                {loading ? (
-                    <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>
-                        <CircularProgress/>
-                    </Box>
-                ) : messages.length === 0 ? (
-                    <Box sx={{textAlign: 'center', color: 'text.secondary', mt: 10}}>
-                        <Typography variant="body1">
-                            No messages yet. Start the conversation!
-                        </Typography>
-                    </Box>
-                ) : (
-                    messages.map(message => (
-                        <Box
-                            key={message.id}
-                            sx={{
-                                alignSelf: message.senderId === currentUser?.uid ? 'flex-end' : 'flex-start',
-                                mb: 1.5
-                            }}
-                        >
-                            <Box sx={{display: 'flex', alignItems: 'flex-end'}}>
-                                {message.senderId !== currentUser?.uid && (
-                                    <Box sx={{mr: 1}}>
-                                        {message.isAnonymous ? (
-                                            <Avatar sx={{bgcolor: 'grey.500'}}>
-                                                <VisibilityOffIcon fontSize="small"/>
-                                            </Avatar>
-                                        ) : (
-                                            <Avatar src={message.senderPhotoURL} alt={message.senderName}/>
-                                        )}
-                                    </Box>
-                                )}
-
-                                <Box>
-                                    {/* Sender Name with Anonymous Badge */}
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            ml: 1,
-                                            display: 'block',
-                                            textAlign: message.senderId === currentUser?.uid ? 'right' : 'left',
-                                            color: 'text.secondary'
-                                        }}
-                                    >
-                                        {message.isAnonymous ? (
-                                            <Badge
-                                                overlap="circular"
-                                                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                                badgeContent={
-                                                    <Tooltip title="Anonymous message">
-                                                        <VisibilityOffIcon fontSize="inherit"/>
-                                                    </Tooltip>
-                                                }
-                                            >
-                                                Anonymous
-                                            </Badge>
-                                        ) : message.senderId === currentUser?.uid ? 'You' : (
-                                            isItemAuthor ? `${message.senderName} (User)` : message.senderName
-                                        )}
-                                    </Typography>
-
-                                    {/* Message Content */}
-                                    <Paper
-                                        elevation={1}
-                                        sx={{
-                                            p: 1.5,
-                                            bgcolor: message.senderId === currentUser?.uid ? 'primary.light' : 'grey.100',
-                                            color: message.senderId === currentUser?.uid ? 'white' : 'inherit',
-                                            borderRadius: 2,
-                                            maxWidth: '300px',
-                                            wordBreak: 'break-word'
-                                        }}
-                                    >
-                                        <Typography variant="body1">{message.content}</Typography>
-                                    </Paper>
-
-                                    {/* Message Timestamp */}
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            ml: 1,
-                                            display: 'block',
-                                            textAlign: message.senderId === currentUser?.uid ? 'right' : 'left',
-                                            color: 'text.secondary'
-                                        }}
-                                    >
-                                        {formatTime(message.timestamp)}
-                                    </Typography>
-                                </Box>
-
-                                {message.senderId === currentUser?.uid && (
-                                    <Box sx={{ml: 1}}>
-                                        {message.isAnonymous ? (
-                                            <Avatar sx={{bgcolor: 'primary.dark'}}>
-                                                <VisibilityOffIcon fontSize="small"/>
-                                            </Avatar>
-                                        ) : (
-                                            <Avatar src={currentUser?.photoURL}
-                                                    alt={currentUser?.displayName || 'You'}/>
-                                        )}
-                                    </Box>
-                                )}
-                            </Box>
-                        </Box>
-                    ))
-                )}
+                {renderContent()}
                 <div ref={messagesEndRef}/>
             </Box>
 
@@ -216,6 +328,7 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
                                 onChange={() => setIsAnonymous(!isAnonymous)}
                                 color="primary"
                                 size="small"
+                                disabled={loading || localLoading}
                             />
                         }
                         label={
@@ -248,13 +361,13 @@ export default function ChatBox({otherUser, itemId, itemTitle, isItemAuthor}) {
                     size="small"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    disabled={loading}
+                    disabled={loading || localLoading}
                     sx={{mr: 1}}
                 />
                 <IconButton
                     color="primary"
                     type="submit"
-                    disabled={!newMessage.trim() || loading}
+                    disabled={!newMessage.trim() || loading || localLoading}
                 >
                     <SendIcon/>
                 </IconButton>
