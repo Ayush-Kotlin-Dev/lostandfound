@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     Box,
     TextField,
@@ -14,7 +14,8 @@ import {
     Grid,
     Alert,
     CircularProgress,
-    InputAdornment
+    InputAdornment,
+    IconButton
 } from '@mui/material';
 import {useItems} from '../../context/ItemsContext';
 import {useNavigate} from 'react-router-dom';
@@ -27,15 +28,18 @@ import {
     CalendarToday as DateIcon,
     Phone as PhoneIcon,
     Telegram as TelegramIcon,
-    Psychology as AiIcon
+    Psychology as AiIcon,
+    Close as CloseIcon
 } from '@mui/icons-material';
 import {useAuth} from '../../context/AuthContext';
 import TELEGRAM_CONFIG from '../../config/telegramConfig';
+import {isTelegramNotificationDismissed, dismissTelegramNotification} from '../../utils/notificationUtils';
 
 export default function ReportItemForm() {
     const {categories, status, reportItem} = useItems();
     const {currentUser} = useAuth();
     const navigate = useNavigate();
+    const [showTelegramNotification, setShowTelegramNotification] = useState(true);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -52,12 +56,22 @@ export default function ReportItemForm() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
+    useEffect(() => {
+        const isDismissed = isTelegramNotificationDismissed();
+        setShowTelegramNotification(!isDismissed);
+    }, []);
+
     const handleChange = (e) => {
         const {name, value} = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
+    };
+
+    const handleDismissTelegramNotification = () => {
+        dismissTelegramNotification();
+        setShowTelegramNotification(false);
     };
 
     const handleSubmit = async (e) => {
@@ -315,8 +329,17 @@ export default function ReportItemForm() {
                 </Paper>
 
                 {/* Telegram Info Paper */}
-                {TELEGRAM_CONFIG.ENABLED && (
-                    <Paper elevation={2} sx={{p: 3, borderRadius: 2, mt: 3, bgcolor: '#f5f9ff'}}>
+                {TELEGRAM_CONFIG.ENABLED && showTelegramNotification && (
+                    <Paper elevation={2} sx={{p: 3, borderRadius: 2, mt: 3, bgcolor: '#f5f9ff', position: 'relative'}}>
+                        <IconButton
+                            aria-label="close"
+                            size="small"
+                            sx={{position: 'absolute', top: 8, right: 8}}
+                            onClick={handleDismissTelegramNotification}
+                        >
+                            <CloseIcon fontSize="small"/>
+                        </IconButton>
+
                         <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
                             <TelegramIcon sx={{mr: 1, color: '#0088cc'}}/>
                             <Typography variant="h6" sx={{color: '#0088cc'}}>
@@ -332,7 +355,7 @@ export default function ReportItemForm() {
                             variant="outlined"
                             startIcon={<TelegramIcon/>}
                             sx={{mt: 2, color: '#0088cc', borderColor: '#0088cc'}}
-                            href={`https://t.me/${TELEGRAM_CONFIG.CHANNEL_ID.replace('-100', '')}`}
+                            href={TELEGRAM_CONFIG.INVITE_LINK}
                             target="_blank"
                             rel="noopener noreferrer"
                         >

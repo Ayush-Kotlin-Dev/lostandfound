@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     Container,
     Typography,
@@ -11,7 +11,8 @@ import {
     Alert,
     Link,
     Divider,
-    Chip
+    Chip,
+    IconButton
 } from '@mui/material';
 import {useAuth} from '../context/AuthContext';
 import {useItems} from '../context/ItemsContext';
@@ -21,17 +22,25 @@ import CategoryFilter from './items/CategoryFilter';
 import {
     Add as AddIcon,
     Telegram as TelegramIcon,
-    Psychology as AiIcon
+    Psychology as AiIcon,
+    Close as CloseIcon
 } from '@mui/icons-material';
 import {useNavigate} from 'react-router-dom';
 import TELEGRAM_CONFIG from '../config/telegramConfig';
+import {isTelegramNotificationDismissed, dismissTelegramNotification} from '../utils/notificationUtils';
 
 export default function Dashboard() {
     const [tabValue, setTabValue] = useState(0); // 0 for Lost, 1 for Found
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [showTelegramNotification, setShowTelegramNotification] = useState(true);
     const {currentUser} = useAuth();
     const {lostItems, foundItems, loading, error} = useItems();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const isDismissed = isTelegramNotificationDismissed();
+        setShowTelegramNotification(!isDismissed);
+    }, []);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -40,6 +49,11 @@ export default function Dashboard() {
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
+    };
+
+    const handleDismissTelegramNotification = () => {
+        dismissTelegramNotification();
+        setShowTelegramNotification(false);
     };
 
     // Filter items by category
@@ -87,11 +101,21 @@ export default function Dashboard() {
                 </Paper>
 
                 {/* Telegram Alert */}
-                {TELEGRAM_CONFIG.ENABLED && (
+                {TELEGRAM_CONFIG.ENABLED && showTelegramNotification && (
                     <Alert
                         severity="info"
                         icon={<TelegramIcon sx={{color: '#0088cc'}}/>}
                         sx={{mb: 3, '& .MuiAlert-message': {width: '100%'}}}
+                        action={
+                            <IconButton
+                                aria-label="close"
+                                color="inherit"
+                                size="small"
+                                onClick={handleDismissTelegramNotification}
+                            >
+                                <CloseIcon fontSize="inherit"/>
+                            </IconButton>
+                        }
                     >
                         <Box sx={{
                             display: 'flex',
@@ -107,7 +131,7 @@ export default function Dashboard() {
                                 variant="outlined"
                                 size="small"
                                 sx={{color: '#0088cc', borderColor: '#0088cc', mt: {xs: 1, sm: 0}}}
-                                href={`https://t.me/${TELEGRAM_CONFIG.CHANNEL_ID.replace('-100', '')}`}
+                                href={TELEGRAM_CONFIG.INVITE_LINK}
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >

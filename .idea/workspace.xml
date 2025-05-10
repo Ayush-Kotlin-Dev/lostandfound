@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add telegram integration by adding configuration and service files">
-      <change afterPath="$PROJECT_DIR$/src/components/items/PotentialMatches.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/services/ItemMatchingService.js" afterDir="false" />
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="implement ai-powered matching and integrate telegram notifications for enhanced user interaction">
       <change beforePath="$PROJECT_DIR$/src/components/Dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Dashboard.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/items/ReportItemForm.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ReportItemForm.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/telegramConfig.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/telegramConfig.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +51,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_interpreter_path": "node",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "com.github.firebender.androidstudiocopilot.settings.FirebenderSettingsConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -73,7 +71,7 @@
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
       <workItem from="1746817300524" duration="5912000" />
-      <workItem from="1746904094804" duration="1746000" />
+      <workItem from="1746904094804" duration="2013000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -179,7 +177,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746905684350</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="implement ai-powered matching and integrate telegram notifications for enhanced user interaction">
+      <option name="closed" value="true" />
+      <created>1746905870290</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1746905870290</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -222,6 +228,7 @@
     <MESSAGE value="add chat component and enhance item details screen with contribution tracking and user interaction features" />
     <MESSAGE value="add telegram integration for notifications and update item and profile screens with contribution tracking and user interaction features" />
     <MESSAGE value="add telegram integration by adding configuration and service files" />
-    <option name="LAST_COMMIT_MESSAGE" value="add telegram integration by adding configuration and service files" />
+    <MESSAGE value="implement ai-powered matching and integrate telegram notifications for enhanced user interaction" />
+    <option name="LAST_COMMIT_MESSAGE" value="implement ai-powered matching and integrate telegram notifications for enhanced user interaction" />
   </component>
 </project>

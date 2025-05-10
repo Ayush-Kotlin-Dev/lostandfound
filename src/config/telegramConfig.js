@@ -8,6 +8,9 @@ const TELEGRAM_CONFIG = {
     // Target channel ID (where notifications will be sent)
     CHANNEL_ID: "-1002387146666",
 
+    // Telegram channel invite link for users to join
+    INVITE_LINK: "https://t.me/+EXrBye2umBA5MzVl",
+
     // Enable/disable Telegram notifications
     ENABLED: true,
 
