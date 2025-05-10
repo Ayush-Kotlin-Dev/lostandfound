@@ -38,6 +38,7 @@ import TopAppBar from '../layout/TopAppBar';
 import {useAuth} from '../../context/AuthContext';
 import {useItems} from '../../context/ItemsContext';
 import ChatBox from '../chat/ChatBox';
+import PotentialMatches from './PotentialMatches';
 
 // Helper to format date
 const formatDate = (timestamp) => {
@@ -402,7 +403,10 @@ export default function ItemDetailsScreen() {
               </Collapse>
           </Paper>
 
-          {/* User Information Paper */}
+                {/* AI-Powered Potential Matches */}
+                <PotentialMatches item={item}/>
+
+                {/* User Information Paper */}
           <Paper elevation={3} sx={{p: 4, borderRadius: 2, mb: 4}}>
               <Typography variant="h6" gutterBottom>
                   {item.status === itemStatus.LOST ? 'Posted By' : 'Found By'}

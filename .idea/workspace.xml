@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add chat component and enhance item details screen with contribution tracking and user interaction features">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add telegram integration by adding configuration and service files">
+      <change afterPath="$PROJECT_DIR$/src/components/items/PotentialMatches.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/ItemMatchingService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/Dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Dashboard.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ItemDetailsScreen.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/items/ReportItemForm.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ReportItemForm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/context/ItemsContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/ItemsContext.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +73,7 @@
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
       <workItem from="1746817300524" duration="5912000" />
-      <workItem from="1746904094804" duration="1441000" />
+      <workItem from="1746904094804" duration="1746000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -162,7 +163,23 @@
       <option name="project" value="LOCAL" />
       <updated>1746904720069</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="add telegram integration for notifications and update item and profile screens with contribution tracking and user interaction features">
+      <option name="closed" value="true" />
+      <created>1746905548104</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1746905548104</updated>
+    </task>
+    <task id="LOCAL-00013" summary="add telegram integration by adding configuration and service files">
+      <option name="closed" value="true" />
+      <created>1746905684350</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1746905684350</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -203,6 +220,8 @@
     <MESSAGE value="add chat functionality and update item details screen with contribution tracking and user interaction features" />
     <MESSAGE value="add chat component and update item details screen with contribution tracking and user interaction features" />
     <MESSAGE value="add chat component and enhance item details screen with contribution tracking and user interaction features" />
-    <option name="LAST_COMMIT_MESSAGE" value="add chat component and enhance item details screen with contribution tracking and user interaction features" />
+    <MESSAGE value="add telegram integration for notifications and update item and profile screens with contribution tracking and user interaction features" />
+    <MESSAGE value="add telegram integration by adding configuration and service files" />
+    <option name="LAST_COMMIT_MESSAGE" value="add telegram integration by adding configuration and service files" />
   </component>
 </project>

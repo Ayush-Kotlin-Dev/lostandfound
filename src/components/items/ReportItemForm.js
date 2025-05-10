@@ -26,7 +26,8 @@ import {
     LocationOn as LocationIcon,
     CalendarToday as DateIcon,
     Phone as PhoneIcon,
-    Telegram as TelegramIcon
+    Telegram as TelegramIcon,
+    Psychology as AiIcon
 } from '@mui/icons-material';
 import {useAuth} from '../../context/AuthContext';
 import TELEGRAM_CONFIG from '../../config/telegramConfig';
@@ -109,6 +110,14 @@ export default function ReportItemForm() {
                     <Typography variant="h4" gutterBottom>
                         Report an Item
                     </Typography>
+
+                    <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
+                        <AiIcon sx={{color: 'primary.main', mr: 1}}/>
+                        <Typography variant="body2" color="text.secondary">
+                            Our AI-powered system will automatically find potential matches between lost and found
+                            items.
+                        </Typography>
+                    </Box>
 
                     {error && (
                         <Alert severity="error" sx={{mb: 3}}>

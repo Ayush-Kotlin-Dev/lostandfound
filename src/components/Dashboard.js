@@ -20,7 +20,8 @@ import ItemsGrid from './items/ItemsGrid';
 import CategoryFilter from './items/CategoryFilter';
 import {
     Add as AddIcon,
-    Telegram as TelegramIcon
+    Telegram as TelegramIcon,
+    Psychology as AiIcon
 } from '@mui/icons-material';
 import {useNavigate} from 'react-router-dom';
 import TELEGRAM_CONFIG from '../config/telegramConfig';
@@ -67,6 +68,12 @@ export default function Dashboard() {
                             <Typography variant="body1" color="text.secondary">
                                 Browse lost and found items or report a new item.
                             </Typography>
+                            <Box sx={{display: 'flex', alignItems: 'center', mt: 1}}>
+                                <AiIcon sx={{fontSize: 18, color: 'primary.main', mr: 1}}/>
+                                <Typography variant="body2" color="primary.main">
+                                    Our AI helps match lost items with found ones automatically!
+                                </Typography>
+                            </Box>
                         </Box>
                         <Button
                             variant="contained"
