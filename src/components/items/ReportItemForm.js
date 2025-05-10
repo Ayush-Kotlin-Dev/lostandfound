@@ -25,9 +25,11 @@ import {
     Category as CategoryIcon,
     LocationOn as LocationIcon,
     CalendarToday as DateIcon,
-    Phone as PhoneIcon
+    Phone as PhoneIcon,
+    Telegram as TelegramIcon
 } from '@mui/icons-material';
 import {useAuth} from '../../context/AuthContext';
+import TELEGRAM_CONFIG from '../../config/telegramConfig';
 
 export default function ReportItemForm() {
     const {categories, status, reportItem} = useItems();
@@ -60,21 +62,24 @@ export default function ReportItemForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Basic validation
         if (!formData.title || !formData.category || !formData.location) {
             setError('Please fill in all required fields');
             return;
         }
 
+        const cleanFormData = {
+            ...formData,
+            imageUrl: formData.imageUrl?.trim() || ''
+        };
+
         try {
             setLoading(true);
             setError('');
 
-            const result = await reportItem(formData);
+            const result = await reportItem(cleanFormData);
 
             if (result) {
                 setSuccess(true);
-                // Redirect to dashboard after a brief delay
                 setTimeout(() => {
                     navigate('/dashboard');
                 }, 1500);
@@ -270,10 +275,14 @@ export default function ReportItemForm() {
                                     value={formData.imageUrl}
                                     onChange={handleChange}
                                     placeholder="https://example.com/image.jpg"
+                                    helperText="Provide a direct link to an image of the item. The image will be downloaded and forwarded to the Telegram channel for better visibility."
                                 />
+                                <Typography variant="caption" color="textSecondary" sx={{mt: 1, display: 'block'}}>
+                                    Tip: You can use image hosting services like imgur.com to upload your image and
+                                    paste the direct link here.
+                                </Typography>
                             </Grid>
 
-                            {/* Submit Button */}
                             <Grid item xs={12}>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
                                     <Button
@@ -295,6 +304,33 @@ export default function ReportItemForm() {
                         </Grid>
                     </Box>
                 </Paper>
+
+                {/* Telegram Info Paper */}
+                {TELEGRAM_CONFIG.ENABLED && (
+                    <Paper elevation={2} sx={{p: 3, borderRadius: 2, mt: 3, bgcolor: '#f5f9ff'}}>
+                        <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
+                            <TelegramIcon sx={{mr: 1, color: '#0088cc'}}/>
+                            <Typography variant="h6" sx={{color: '#0088cc'}}>
+                                Get Updates via Telegram
+                            </Typography>
+                        </Box>
+                        <Typography variant="body2">
+                            All reported items are automatically posted to our Telegram channel.
+                            Join to get instant notifications about lost and found items!
+                        </Typography>
+
+                        <Button
+                            variant="outlined"
+                            startIcon={<TelegramIcon/>}
+                            sx={{mt: 2, color: '#0088cc', borderColor: '#0088cc'}}
+                            href={`https://t.me/${TELEGRAM_CONFIG.CHANNEL_ID.replace('-100', '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Join Telegram Channel
+                        </Button>
+                    </Paper>
+                )}
             </Box>
         </div>
     );

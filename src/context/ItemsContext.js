@@ -2,6 +2,7 @@ import React, {createContext, useContext, useState, useEffect} from 'react';
 import {db} from '../firebase/config';
 import {collection, query, where, getDocs, addDoc, serverTimestamp, orderBy} from 'firebase/firestore';
 import {useAuth} from './AuthContext';
+import {sendItemNotification} from '../services/TelegramService';
 
 // Create the context
 const ItemsContext = createContext();
@@ -135,7 +136,26 @@ export const ItemsProvider = ({children}) => {
                 createdAt: serverTimestamp()
             };
 
-            await addDoc(collection(db, 'items'), newItem);
+            // Find category name from category ID
+            const category = ITEM_CATEGORIES.find(cat => cat.id === itemData.category);
+            newItem.categoryName = category ? category.label : 'Unknown';
+
+            // Add the item to the database
+            const docRef = await addDoc(collection(db, 'items'), newItem);
+
+            // Get the item with the ID for the notification
+            const itemWithId = {
+                id: docRef.id,
+                ...newItem
+            };
+
+            // Send notification to Telegram
+            try {
+                await sendItemNotification(itemWithId);
+            } catch (telegramError) {
+                console.error('Failed to send Telegram notification:', telegramError);
+                // We don't want to fail the entire operation if just the notification fails
+            }
 
             // Refresh the appropriate list
             if (itemData.status === ITEM_STATUS.LOST) {
