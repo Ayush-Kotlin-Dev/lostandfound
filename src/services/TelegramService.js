@@ -43,6 +43,29 @@ const formatItemMessage = (item) => {
 };
 
 /**
+ * Generate a shortened caption for images
+ * @param {Object} item - Item information
+ * @returns {string} - HTML formatted caption
+ */
+const formatImageCaption = (item) => {
+    // Emoji based on item status
+    const statusEmoji = item.status === 'lost' ? '❓' : '✅';
+    const statusText = item.status === 'lost' ? 'LOST' : 'FOUND';
+
+    return `
+<b>${statusEmoji} ${statusText} ITEM: ${item.title}</b>
+
+<b>${item.status === 'lost' ? 'Lost' : 'Found'} at:</b> ${item.location}
+<b>Category:</b> ${item.categoryName || item.category}
+<b>Date:</b> ${item.date ? new Date(item.date).toLocaleDateString() : 'Not specified'}
+<b>Description:</b> ${(item.description || '').substring(0, 50)}${item.description && item.description.length > 50 ? '...' : ''}
+
+<b>Item ID:</b> ${item.id}
+<i>See app for complete details</i>
+`;
+};
+
+/**
  * Send item notification to Telegram channel
  * @param {Object} item - The item to notify about
  * @returns {Promise} - Result of the API call
@@ -115,20 +138,38 @@ const sendItemWithImage = async (item) => {
         // First, fetch the image from the URL
         console.log('Downloading image from URL:', item.imageUrl);
 
-        // Try to use a CORS proxy if the direct fetch fails
+        // Handle Firebase Storage URLs specially
         let imageResponse;
+        const isFirebaseStorageUrl = item.imageUrl.includes('firebasestorage.googleapis.com');
+
         try {
-            // First try direct access
-            imageResponse = await fetch(item.imageUrl);
+            // For Firebase Storage URLs, we need to add special headers to avoid CORS issues
+            if (isFirebaseStorageUrl) {
+                imageResponse = await fetch(item.imageUrl, {
+                    headers: {
+                        'Origin': window.location.origin,
+                    },
+                    mode: 'cors',
+                    cache: 'no-cache',
+                });
+            } else {
+                // For regular URLs, try direct access first
+                imageResponse = await fetch(item.imageUrl);
+            }
 
             if (!imageResponse.ok) {
-                throw new Error('Direct fetch failed');
+                throw new Error(`Direct fetch failed: ${imageResponse.status}`);
             }
         } catch (directError) {
             console.warn('Direct image fetch failed, trying proxy:', directError);
 
-            // Try with proxy
-            const proxiedUrl = `${IMAGE_PROXY}${encodeURIComponent(item.imageUrl)}`;
+            // Try with proxy - this works better with third-party images
+            // For Firebase Storage, we add a special token parameter to avoid CORS
+            const urlToProxy = isFirebaseStorageUrl
+                ? `${item.imageUrl}&token=tg-proxy`
+                : item.imageUrl;
+
+            const proxiedUrl = `${IMAGE_PROXY}${encodeURIComponent(urlToProxy)}`;
             imageResponse = await fetch(proxiedUrl);
 
             if (!imageResponse.ok) {
@@ -140,20 +181,7 @@ const sendItemWithImage = async (item) => {
         const imageBlob = await imageResponse.blob();
 
         // Create a shorter caption for the image
-        const statusEmoji = item.status === 'lost' ? '❓' : '✅';
-        const statusText = item.status === 'lost' ? 'LOST' : 'FOUND';
-
-        const caption = `
-<b>${statusEmoji} ${statusText} ITEM: ${item.title}</b>
-
-<b>${item.status === 'lost' ? 'Lost' : 'Found'} at:</b> ${item.location}
-<b>Category:</b> ${item.categoryName || item.category}
-<b>Date:</b> ${item.date ? new Date(item.date).toLocaleDateString() : 'Not specified'}
-<b>Description:</b> ${(item.description || '').substring(0, 50)}${item.description && item.description.length > 50 ? '...' : ''}
-
-<b>Item ID:</b> ${item.id}
-<i>See app for complete details</i>
-`;
+        const caption = formatImageCaption(item);
 
         // Create FormData for file upload
         const formData = new FormData();
@@ -166,15 +194,12 @@ const sendItemWithImage = async (item) => {
         formData.append('caption', caption);
         formData.append('parse_mode', 'HTML');
 
-        if (TELEGRAM_CONFIG.DEBUG) {
-            console.log('Uploading image with size:', imageBlob.size, 'bytes');
-            console.log('Image mime type:', imageBlob.type);
-        }
-
         // Build the URL for the Telegram Bot API
         const url = `https://api.telegram.org/bot${TELEGRAM_CONFIG.BOT_TOKEN}/sendPhoto`;
 
         // Send the request with the image file
+        console.log(`Sending image to Telegram with size: ${imageBlob.size} bytes`);
+
         const response = await fetch(url, {
             method: 'POST',
             body: formData
@@ -190,7 +215,36 @@ const sendItemWithImage = async (item) => {
 
     } catch (error) {
         console.error('Error uploading image to Telegram:', error);
-        console.warn('Falling back to text message');
+        // If there was a problem with image upload, try to send the image URL directly
+        try {
+            const caption = formatImageCaption(item);
+            const urlPayload = {
+                chat_id: TELEGRAM_CONFIG.CHANNEL_ID,
+                photo: item.imageUrl, // Send the direct URL to let Telegram handle it
+                caption: caption,
+                parse_mode: "HTML"
+            };
+
+            console.log("Falling back to direct URL method:", item.imageUrl);
+            const urlResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_CONFIG.BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(urlPayload)
+            });
+
+            if (urlResponse.ok) {
+                const urlData = await urlResponse.json();
+                console.log('Fallback URL method succeeded:', urlData);
+                return urlData;
+            }
+        } catch (urlError) {
+            console.error('URL fallback also failed:', urlError);
+        }
+
+        // If all image methods fail, fall back to text
+        console.warn('All image methods failed, falling back to text message');
         return await sendItemAsText(item);
     }
 };

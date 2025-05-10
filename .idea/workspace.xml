@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="implement chat and notification enhancements with improved initialization, error handling, dismiss feature, and UI updates">
-      <change beforePath="$PROJECT_DIR$/src/components/items/ReportItemForm.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/items/ReportItemForm.js" afterDir="false" />
+    <list default="true" id="9c52a09a-d30a-4518-94b5-26865f6a2660" name="Changes" comment="add image upload and preview functionality with progress indicator and removal option">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/TelegramService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/TelegramService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +70,7 @@
       <updated>1746817188744</updated>
       <workItem from="1746817189728" duration="83000" />
       <workItem from="1746817300524" duration="5912000" />
-      <workItem from="1746904094804" duration="4257000" />
+      <workItem from="1746904094804" duration="4980000" />
     </task>
     <task id="LOCAL-00001" summary="add firebase authentication context, protected route, and registration component for user auth management">
       <option name="closed" value="true" />
@@ -207,7 +208,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746908431459</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="add image upload and preview functionality with progress indicator and removal option">
+      <option name="closed" value="true" />
+      <created>1746908902926</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1746908902926</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -254,6 +263,7 @@
     <MESSAGE value="add telegram notification dismiss feature and update config with invite link" />
     <MESSAGE value="add chat and notification enhancements, including dismiss feature, improved initialization, error handling, and UI updates" />
     <MESSAGE value="implement chat and notification enhancements with improved initialization, error handling, dismiss feature, and UI updates" />
-    <option name="LAST_COMMIT_MESSAGE" value="implement chat and notification enhancements with improved initialization, error handling, dismiss feature, and UI updates" />
+    <MESSAGE value="add image upload and preview functionality with progress indicator and removal option" />
+    <option name="LAST_COMMIT_MESSAGE" value="add image upload and preview functionality with progress indicator and removal option" />
   </component>
 </project>
